@@ -25,8 +25,8 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "electron:serve": "concurrently \"yarn start\" \"yarn electron:start\"",
-        "electron:start": "wait-on http://localhost:3000 && yarn electron .",
+        "electron:serve": "concurrently \"npm run start\" \"npm run electron:start\"",
+        "electron:start": "npm run electron .",
         "electron": "electron ."
     },
     "eslintConfig": {
