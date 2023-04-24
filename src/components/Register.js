@@ -9,16 +9,18 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: "center",
         alignItems: "center",
         margin: "15% 36%",
+        backgroundColor: "#fff000"
     },
     textFieldStyle:{
         padding: 6
     },
-    palette:{
-        primary: "#447CC1"
+    error:{
+        position: "absolute",
+        marginTop: 0
     },
     buttonStyle:{
-        alignItems: "center",
-        justifyContent: "center"
+        display: "flex",
+        alignItems: "center"
     }
 }));
 
@@ -34,7 +36,7 @@ export function Register(props) {
 
     const {signup} = useAuth()
     const navigate = useNavigate()
-    const [error, setError] = useState()
+    const [errors, setErrors] = useState()
 
     const handleChange = ({ target: { id, value } }) => {
         setUser({ ...user, [id]: value });
@@ -42,12 +44,12 @@ export function Register(props) {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+        setErrors('')
         try {
-            await signup(user.email, user.password)
-            navigate("/")
-        } catch (error) {
-            setError(error.message) 
-            console.log(error.message)
+            await signup(user.email, user.password);
+            navigate("/");
+        }catch(error) {
+            setErrors(error.message) 
             
         }
     };
@@ -55,7 +57,7 @@ export function Register(props) {
     return (
         <div className={classes.register}>
 
-            {error && <p>{error}</p>}
+            {errors && <p className={classes.error}>{errors}</p>}
 
             <form onSubmit={handleSubmit} >
                 <TextField
@@ -75,7 +77,6 @@ export function Register(props) {
                 <TextField
                     id="email"
                     label="Email"
-                    type="email"
                     variant="outlined"
                     onChange={handleChange}
                     className={classes.textFieldStyle}

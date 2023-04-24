@@ -1,27 +1,85 @@
-import { TextField, Button } from "@material-ui/core";
+import { TextField, Button, makeStyles, Typography } from "@material-ui/core";
+import { useState } from "react";
+import { useAuth } from "../context/authContext";
+import { useNavigate } from "react-router-dom";
 
-// import { useState } from "react";
+const useStyles = makeStyles((theme) => ({
+    register: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        margin: "15% 36%",
+        backgroundColor: "#fff000"
+    },
+    textFieldStyle:{
+        padding: 6
+    },
+    error:{
+        position: "absolute",
+        marginTop: 0
+    },
+    buttonStyle:{
+        display: "flex",
+        alignItems: "center"
+    }
+}));
 
-export function Login() {
-    // const[user, setUser] = useState({
-    //     email: '',
-    //     password:''
-    // })
+export function Login(props) {
+    const classes = useStyles();
+    const navigate = useNavigate()
+    const [user, setUser] = useState({
+        name: "",
+        password: "",
+    });
+
+    const { login } = useAuth()
+    const [errors, setErrors] = useState()
+
+    const handleChange = ({ target: { id, value } }) => {
+        setUser({ ...user, [id]: value });
+    };
+
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+        setErrors('')
+        try {
+            await login(user.email, user.password);
+            navigate("/")
+        }catch(error) {
+            setErrors(error.message) 
+            
+        }
+    };
+
+    const handleRegister = () =>{
+        navigate("/register")
+    }
 
     return (
-        <div>
-            <form>
+        <div className={classes.register}>
+
+            {errors && <p className={classes.error}>{errors}</p>}
+
+            <form onSubmit={handleSubmit} >
+                
                 <TextField
-                    id="standard-basic"
+                    id="email"
                     label="Email"
-                    variant="standard"
+                    variant="outlined"
+                    onChange={handleChange}
+                    className={classes.textFieldStyle}
                 />
                 <TextField
-                    id="standard-basic"
+                    id="password"
                     label="Password"
-                    variant="standard"
+                    type="password"
+                    variant="outlined"
+                    onChange={handleChange}
+                    className={classes.textFieldStyle}
                 />
-                <Button variant="contained">Login</Button>
+                <br></br>
+                <Button variant="contained" type="submit" className={classes.buttonStyle}>Login</Button>
+                <p onClick={handleRegister}>Aun no estoy registrado</p>
             </form>
         </div>
     );
