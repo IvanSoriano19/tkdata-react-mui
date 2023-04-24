@@ -19,7 +19,6 @@ export function Home() {
 
     return (
         <div>
-
             <Typography variant="subtitle1" color="initial">
                 {user.email}
             </Typography>
