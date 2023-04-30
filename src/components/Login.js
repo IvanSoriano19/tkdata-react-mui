@@ -14,6 +14,7 @@ import { LockOutlined } from "@material-ui/icons";
 import { useState } from "react";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
+// import ImageLogin from "../images/login.jpg";
 
 function Copyright() {
     return (
@@ -50,7 +51,11 @@ const useStyles = makeStyles((theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2),
         backgroundColor: "#447cc1",
+        '&:hover':{
+            backgroundColor: "#2765B0",
+        }
     },
+    
 }));
 
 export function Login() {
@@ -142,7 +147,6 @@ export function Login() {
             <Box mt={8}>
                 <Copyright />
             </Box>
-
             {errors && <p className={classes.error}>{errors}</p>}
         </Container>
     );
