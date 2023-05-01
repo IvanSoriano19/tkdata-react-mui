@@ -7,16 +7,13 @@ import {
     Typography,
     Avatar,
     Grid,
-    FormControlLabel,
     Box,
     Link,
-    Checkbox
 } from "@material-ui/core";
 import { LockOutlined } from "@material-ui/icons";
 import { useState } from "react";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
-
 
 function Copyright() {
     return (
@@ -62,6 +59,7 @@ const useStyles = makeStyles((theme) => ({
 export function Register(props) {
     const classes = useStyles();
     const [user, setUser] = useState({
+        id: "", 
         name: "",
         provincia: "",
         email: "",
@@ -81,7 +79,7 @@ export function Register(props) {
         e.preventDefault();
         setErrors("");
         try {
-            await signup(user.email, user.password);
+            await signup(user)
             navigate("/");
         } catch (error) {
             setErrors(error.message);
@@ -92,6 +90,7 @@ export function Register(props) {
         navigate("/login");
     };
 
+    console.log(user);
     return (
         <Container component="main" maxWidth="xs">
             {errors && <p className={classes.error}>{errors}</p>}

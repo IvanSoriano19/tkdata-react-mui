@@ -77,8 +77,7 @@ export function Login() {
         e.preventDefault();
         setErrors("");
         try {
-            await login(user.email, user.password);
-
+            await login(user);
             navigate("/");
         } catch (error) {
             setErrors(error.message);
