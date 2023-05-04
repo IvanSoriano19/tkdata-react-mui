@@ -25,7 +25,7 @@ export function Home() {
 
     
 
-    if (loading) return <h1>LOADING</h1>;
+    if (loading) return <h1>LOADING...</h1>;
 
     return (
         <Navbar/>

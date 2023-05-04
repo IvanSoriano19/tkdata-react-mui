@@ -13,6 +13,7 @@ import {
     createTheme,
     ThemeProvider,
 } from "@material-ui/core";
+import { Logo } from "./Logo.js";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -20,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
     },
     menuButton: {
         marginRight: theme.spacing(2),
+    },
+    icon:{
+        marginRight: "5px"
     },
     title: {
         flexGrow: 1,
@@ -64,24 +68,30 @@ export function Navbar() {
                 <AppBar position="static" color="primary">
                     <Toolbar>
                         <Grid container spacing={12}>
-                            <Typography
-                                variant="body1"
+                            <Button
+                                color="inherit"
+                                className={classes.icon}
+                            >
+                                <Logo/>
+                            </Button>
+                            <Button
+                                color="inherit"
                                 className={classes.items}
                             >
                                 Gestionar mi club
-                            </Typography>
-                            <Typography
-                                variant="body1"
+                            </Button>
+                            <Button
+                                color="inherit"
                                 className={classes.items}
                             >
                                 Campeonatos
-                            </Typography>
-                            <Typography
-                                variant="body1"
+                            </Button>
+                            <Button
+                                color="inherit"
                                 className={classes.items}
                             >
                                 Crear campeonato
-                            </Typography>
+                            </Button>
                         </Grid>
 
                         <div>
