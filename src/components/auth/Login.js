@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { LockOutlined } from "@material-ui/icons";
 import { useState } from "react";
-import { useAuth } from "../context/authContext";
+import { useAuth } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 // import ImageLogin from "../images/login.jpg";
 
