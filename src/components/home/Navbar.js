@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
 import {
     Button,
-    Typography,
     makeStyles,
     AppBar,
     Toolbar,
@@ -69,26 +68,34 @@ export function Navbar() {
                     <Toolbar>
                         <Grid container spacing={12}>
                             <Button
+                                id="logo"
                                 color="inherit"
                                 className={classes.icon}
+                                onClick={() => navigate("/")}
                             >
                                 <Logo/>
                             </Button>
                             <Button
+                                id="miclub"
                                 color="inherit"
                                 className={classes.items}
+                                onClick={() => navigate("/mi-club")}
                             >
                                 Gestionar mi club
                             </Button>
                             <Button
+                                id="campeonatos"
                                 color="inherit"
                                 className={classes.items}
+                                onClick={() => navigate("/campeonatos")}
                             >
                                 Campeonatos
                             </Button>
                             <Button
+                                id="crear"
                                 color="inherit"
                                 className={classes.items}
+                                onClick={() => navigate("/crear-campeonato")}
                             >
                                 Crear campeonato
                             </Button>
