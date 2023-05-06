@@ -28,6 +28,7 @@ para que así podamos tener la aplicacion lista en entorno multiplataforma
 ### Editores de código 💻
 
 * **Visual Studio Code**
+* **Firebase Console**
 
 ### Cafés ☕ ♾️
 
