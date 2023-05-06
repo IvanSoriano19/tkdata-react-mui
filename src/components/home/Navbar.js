@@ -81,7 +81,7 @@ export function Navbar() {
                                 className={classes.items}
                                 onClick={() => navigate("/mi-club")}
                             >
-                                Gestionar mi club
+                                Mi club
                             </Button>
                             <Button
                                 id="campeonatos"

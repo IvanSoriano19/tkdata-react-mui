@@ -13,16 +13,40 @@ function App() {
     return (
         <AuthProvider>
             <Routes>
-                <Route path='/' element={
-                    <ProtectedRoute>
-                        <Home/>
-                    </ProtectedRoute>
-                } />
+                <Route
+                    path="/"
+                    element={
+                        <ProtectedRoute>
+                            <Home />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/mi-club" element={<MiClub />}/>
-                <Route path="/campeonatos" element={<Campeonatos />}/>
-                <Route path="/crear-campeonato" element={<CrearCampeonato />}/>
+                <Route
+                    path="/mi-club"
+                    element={
+                        <ProtectedRoute>
+                            <MiClub />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/campeonatos"
+                    element={
+                        <ProtectedRoute>
+                            <Campeonatos />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/crear-campeonato"
+                    element={
+                        <ProtectedRoute>
+                            <CrearCampeonato />
+                        </ProtectedRoute>
+                    }
+                />
             </Routes>
         </AuthProvider>
     );

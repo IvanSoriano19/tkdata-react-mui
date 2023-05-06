@@ -19,7 +19,6 @@ export function AuthProvider({ children }) {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password)
             
-            console.log("todo ok", userCredential.user.uid);
             const clubId = userCredential.user.uid;
 
             const club = {
@@ -34,8 +33,6 @@ export function AuthProvider({ children }) {
             await setDoc(doc(db, "clubes", clubId),{
                 club
             });
-
-            console.log("todo ok de verdat");
 
         } catch (error) {
             console.log("eeerror", error);
