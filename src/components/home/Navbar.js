@@ -115,8 +115,6 @@ export function Navbar() {
                                 open={Boolean(openMenu)}
                                 onClose={handleClose}
                             >
-                                <MenuItem>Profile</MenuItem>
-                                <MenuItem>My account</MenuItem>
                                 <MenuItem onClick={handleLogout}>
                                     Logout
                                 </MenuItem>
