@@ -5,7 +5,7 @@ import { Register } from "./components/auth/Register";
 import { Login } from "./components/auth/Login";
 import { AuthProvider } from "./context/authContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { MiClub } from "./components/pages/MiClub";
+import { MiClub } from "./components/pages/miClub/MiClub";
 import { Campeonatos } from "./components/pages/Campeonatos";
 import { CrearCampeonato } from "./components/pages/CrearCampeonato";
 
