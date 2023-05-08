@@ -8,16 +8,34 @@ import {
     Button,
     ThemeProvider,
     createTheme,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Typography,
 } from "@material-ui/core";
-import { doc, getDoc } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+} from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
-import { Personas } from "./Personas.js";
+// import { Personas } from "./Personas.js";
 
 const useStyles = makeStyles((theme) => ({
+    root: {
+        alignItems: "center",
+        width: "90%",
+    },
     global: {
         alignItems: "center",
-        width: "92%",
+        width: "80%",
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
         marginTop: "30px",
@@ -43,6 +61,7 @@ export function MiClub() {
     const classes = useStyles();
     const { user } = useAuth();
     const [datos, setDatos] = useState(null);
+    const [datosPersonas, setDatosPersonas] = useState([]);
 
     const getData = useCallback(async () => {
         try {
@@ -64,19 +83,91 @@ export function MiClub() {
         getData();
     }, [user, getData]);
 
+    useEffect(() => {
+        const obtenerDatos = async () => {
+            const datosQuery = query(
+                collection(db, "Personas"),
+                where("Club", "==", datos.club.name)
+            );
+            const datosSnapshot = await getDocs(datosQuery);
+            const datosPers = datosSnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setDatosPersonas(datosPers);
+        };
+
+        obtenerDatos();
+    }, [datos]);
+
     return (
         <div>
             <Navbar />
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={theme} className={classes.root}>
                 {datos && datos.club ? (
                     formData(classes, datos)
                 ) : (
                     <div>Loading</div>
                 )}
-
-                <Personas/>
+                {datos && datos.club ? (
+                    tablaPersonas(classes, datosPersonas)
+                ) : (
+                    <div>Loading</div>
+                )}
             </ThemeProvider>
         </div>
+    );
+}
+
+function tablaPersonas(classes, datosPersonas) {
+    console.log(datosPersonas);
+    return (
+        <Grid className={classes.global}>
+            <TableContainer>
+                <Table className={classes.table} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="left">
+                                <Typography>Nombre</Typography>
+                            </TableCell>
+                            <TableCell align="left">
+                                <Typography>Apellido</Typography>
+                            </TableCell>
+                            <TableCell align="left">
+                                <Typography>Edad</Typography>
+                            </TableCell>
+                            <TableCell align="left">
+                                <Typography>Categoria</Typography>
+                            </TableCell>
+                            <TableCell align="left">
+                                <Typography>Tipo</Typography>
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {datosPersonas.map((row) => (
+                            <TableRow>
+                                <TableCell align="left">
+                                    <Typography>{row.Nombre}</Typography>
+                                </TableCell>
+                                <TableCell align="left">
+                                    <Typography>{row.Apellido}</Typography>
+                                </TableCell>
+                                <TableCell align="left">
+                                    <Typography>{row.Edad}</Typography>
+                                </TableCell>
+                                <TableCell align="left">
+                                    <Typography>{row.Categoria}</Typography>
+                                </TableCell>
+                                <TableCell align="left">
+                                    <Typography>{row.Tipo}</Typography>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Grid>
     );
 }
 
