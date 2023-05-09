@@ -120,9 +120,16 @@ export function MiClub() {
 }
 
 function tablaPersonas(classes, datosPersonas) {
-    console.log(datosPersonas);
     return (
-        <Grid className={classes.global}>
+        <Grid container className={classes.global}>
+            <Grid item xs={12} sm={12} className={classes.miclubBtn}>
+                {/* TODO: se va mirando
+                    crear el boton de crear personas
+                */}
+                <Button variant="contained" color="primary">
+                    Crear
+                </Button>
+            </Grid>
             <TableContainer>
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
