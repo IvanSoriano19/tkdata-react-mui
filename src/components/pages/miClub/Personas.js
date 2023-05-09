@@ -1,17 +1,26 @@
 import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Grid,
+    List,
+    ListItem,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
+    TextField,
     Typography,
     makeStyles,
 } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { db } from "../../../firebase-config";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { useAuth } from "../../../context/authContext";
 
 const useStyles = makeStyles((theme) => ({
     global: {
@@ -28,29 +37,103 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export function Personas() {
+function SimpleDialog(props) {
     const classes = useStyles();
 
-    const [datos, setDatos] = useState([]);
+    const { onClose, selectedValue, open } = props;
 
-    async function obtenerDatos() {
-        const datosSnapshot = await getDocs(collection(db, "Personas"));
-        const datos = datosSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-        setDatos(datos);
-    }
+    const handleClose = () => {
+        onClose(selectedValue);
+    };
+
+    const handleListItemClick = (value) => {
+        onClose(value);
+    };
+
+    return (
+        <Dialog
+            onClose={handleClose}
+            aria-labelledby="simple-dialog-title"
+            open={open}
+        >
+            <DialogTitle id="simple-dialog-title">
+                Añade un paciente
+            </DialogTitle>
+            <List>
+                {/* aqui va el formulario */}
+                <ListItem>
+                    hola
+                </ListItem>
+
+                <ListItem
+                    autoFocus
+                    button
+                    onClick={() => handleListItemClick("addAccount")}
+                >
+            
+                </ListItem>
+            </List>
+        </Dialog>
+    );
+}
+
+export function Personas(props) {
+    const classes = useStyles();
+    const [datosPersonas, setDatosPersonas] = useState([]);
+    const [datos, setDatos] = useState([]);
+    const { nombreClub } = props;
+
+    const [open, setOpen] = useState(false);
+    const [formValues, setFormValues] = useState({});
 
     useEffect(() => {
+        const obtenerDatos = async () => {
+            const datosQuery = query(
+                collection(db, "Personas"),
+                where("Club", "==", nombreClub)
+            );
+            const datosSnapshot = await getDocs(datosQuery);
+            const datosPers = datosSnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setDatosPersonas(datosPers);
+        };
+
         obtenerDatos();
-    }, []);
+    }, [datos]);
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormValues((prevValues) => ({
+            ...prevValues,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        console.log(formValues); // Aquí podrías enviar los valores del formulario a un servidor o almacenarlos en el estado global de la aplicación
+        handleClose();
+    };
 
     // console.log(datos);
 
     return (
-        <Grid className={classes.global}>
-            <TableContainer >
+        <Grid container className={classes.global}>
+            <Grid item xs={12} sm={12} className={classes.miclubBtn}>
+                {/* TODO: se va mirando
+        crear el boton de crear personas
+    */}
+                <Button variant="contained" color="primary">
+                    Crear
+                </Button>
+            </Grid>
+            <TableContainer>
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
@@ -72,7 +155,7 @@ export function Personas() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {datos.map((row) => (
+                        {datosPersonas.map((row) => (
                             <TableRow>
                                 <TableCell align="left">
                                     <Typography>{row.Nombre}</Typography>
