@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
             }
 
             await setDoc(doc(db, "clubes", clubId),{
-                club
+                ...club
             });
 
         } catch (error) {

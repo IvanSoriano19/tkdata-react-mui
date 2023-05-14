@@ -26,12 +26,14 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
+import { Personas } from "./Personas";
 // import { Personas } from "./Personas.js";
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        alignItems: "center",
+        // alignItems: "center",
         width: "90%",
+        margin: "auto",
     },
     global: {
         alignItems: "center",
@@ -46,6 +48,17 @@ const useStyles = makeStyles((theme) => ({
     },
     miclubBtn: {
         justifyContent: "flex-end",
+    },
+    list: {
+        // pendiente centrar la mierda esta me cago en todo
+        marginTop: "30px",
+        width: "80%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f8f6f4",
+        borderRadius: "15px",
+        paddingLeft:"13%"
     },
 }));
 
@@ -62,6 +75,15 @@ export function MiClub() {
     const { user } = useAuth();
     const [datos, setDatos] = useState(null);
     const [datosPersonas, setDatosPersonas] = useState([]);
+    const [open, setOpen] = React.useState(false);
+
+    const handleClick = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     const getData = useCallback(async () => {
         try {
@@ -87,7 +109,7 @@ export function MiClub() {
         const obtenerDatos = async () => {
             const datosQuery = query(
                 collection(db, "Personas"),
-                where("Club", "==", datos.club.name)
+                where("Club", "==", datos.name)
             );
             const datosSnapshot = await getDocs(datosQuery);
             const datosPers = datosSnapshot.docs.map((doc) => ({
@@ -96,7 +118,6 @@ export function MiClub() {
             }));
             setDatosPersonas(datosPers);
         };
-
         obtenerDatos();
     }, [datos]);
 
@@ -104,77 +125,106 @@ export function MiClub() {
         <div>
             <Navbar />
             <ThemeProvider theme={theme} className={classes.root}>
-                {datos && datos.club ? (
+                {datos ? (
                     formData(classes, datos)
                 ) : (
                     <div>Loading</div>
                 )}
-                {datos && datos.club ? (
-                    tablaPersonas(classes, datosPersonas)
+                {datos ? (
+                    <Grid container className={classes.global}>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={12}
+                            className={classes.miclubBtn}
+                        >
+                            {/* TODO: se va mirando
+                            crear el boton de crear personas
+                        */}
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleClick}
+                            >
+                                Crear
+                            </Button>
+                            <Personas
+                                open={open}
+                                handleClose={handleClose}
+                                club={datos.name}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12}>
+                            <TableContainer>
+                                <Table
+                                    className={classes.table}
+                                    aria-label="simple table"
+                                >
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell align="left">
+                                                <Typography>
+                                                    Nombre
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell align="left">
+                                                <Typography>
+                                                    Apellido
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell align="left">
+                                                <Typography>Edad</Typography>
+                                            </TableCell>
+                                            <TableCell align="left">
+                                                <Typography>
+                                                    Categoria
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell align="left">
+                                                <Typography>Tipo</Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {datosPersonas.map((row) => (
+                                            <TableRow>
+                                                <TableCell align="left">
+                                                    <Typography>
+                                                        {row.Nombre}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    <Typography>
+                                                        {row.Apellido}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    <Typography>
+                                                        {row.Edad}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    <Typography>
+                                                        {row.Categoria}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    <Typography>
+                                                        {row.Tipo}
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Grid>
+                    </Grid>
                 ) : (
                     <div>Loading</div>
                 )}
             </ThemeProvider>
         </div>
-    );
-}
-
-function tablaPersonas(classes, datosPersonas) {
-    return (
-        <Grid container className={classes.global}>
-            <Grid item xs={12} sm={12} className={classes.miclubBtn}>
-                {/* TODO: se va mirando
-                    crear el boton de crear personas
-                */}
-                <Button variant="contained" color="primary">
-                    Crear
-                </Button>
-            </Grid>
-            <TableContainer>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left">
-                                <Typography>Nombre</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Apellido</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Edad</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Categoria</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Tipo</Typography>
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {datosPersonas.map((row) => (
-                            <TableRow>
-                                <TableCell align="left">
-                                    <Typography>{row.Nombre}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Apellido}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Edad}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Categoria}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Tipo}</Typography>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Grid>
     );
 }
 
@@ -195,7 +245,7 @@ function formData(classes, datos) {
                         className={classes.miclub}
                         disabled
                         label="Nombre del club"
-                        defaultValue={datos.club.name}
+                        defaultValue={datos.name}
                         variant="outlined"
                     />
                 </Grid>
@@ -204,7 +254,7 @@ function formData(classes, datos) {
                         className={classes.miclub}
                         disabled
                         label="Email del club"
-                        defaultValue={datos.club.email}
+                        defaultValue={datos.email}
                         variant="outlined"
                     />
                 </Grid>
@@ -213,7 +263,7 @@ function formData(classes, datos) {
                         className={classes.miclub}
                         disabled
                         label="Telefono del club"
-                        defaultValue={datos.club.telefono}
+                        defaultValue={datos.telefono}
                         variant="outlined"
                     />
                 </Grid>
@@ -222,7 +272,7 @@ function formData(classes, datos) {
                         className={classes.miclub}
                         disabled
                         label="Provincia del club"
-                        defaultValue={datos.club.provincia}
+                        defaultValue={datos.provincia}
                         variant="outlined"
                     />
                 </Grid>

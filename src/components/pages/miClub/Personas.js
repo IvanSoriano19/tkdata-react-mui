@@ -5,178 +5,138 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
-    List,
-    ListItem,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     TextField,
-    Typography,
     makeStyles,
 } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { db } from "../../../firebase-config";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { useAuth } from "../../../context/authContext";
+import { addDoc, collection} from "firebase/firestore";
 
 const useStyles = makeStyles((theme) => ({
-    global: {
-        // alinear la tabla para que esté como el form de miclub
+    paper: {
+        marginTop: theme.spacing(8),
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        width: "70%",
-        backgroundColor: "#f8f6f4",
-        borderRadius: "15px",
-        marginTop: "30px",
     },
-    table: {
-        alignItems: "center",
+    avatar: {
+        margin: theme.spacing(1),
+        backgroundColor: "#e55156",
+    },
+    form: {
+        width: "100%",
+        marginTop: theme.spacing(3),
+    },
+    submit: {
+        margin: theme.spacing(3, 0, 2),
+        backgroundColor: "#447cc1",
+        "&:hover": {
+            backgroundColor: "#2765B0",
+        },
     },
 }));
 
-function SimpleDialog(props) {
-    const classes = useStyles();
-
-    const { onClose, selectedValue, open } = props;
-
-    const handleClose = () => {
-        onClose(selectedValue);
-    };
-
-    const handleListItemClick = (value) => {
-        onClose(value);
-    };
-
-    return (
-        <Dialog
-            onClose={handleClose}
-            aria-labelledby="simple-dialog-title"
-            open={open}
-        >
-            <DialogTitle id="simple-dialog-title">
-                Añade un paciente
-            </DialogTitle>
-            <List>
-                {/* aqui va el formulario */}
-                <ListItem>
-                    hola
-                </ListItem>
-
-                <ListItem
-                    autoFocus
-                    button
-                    onClick={() => handleListItemClick("addAccount")}
-                >
-            
-                </ListItem>
-            </List>
-        </Dialog>
-    );
-}
-
 export function Personas(props) {
     const classes = useStyles();
-    const [datosPersonas, setDatosPersonas] = useState([]);
-    const [datos, setDatos] = useState([]);
-    const { nombreClub } = props;
+    const { open, handleClose, club } = props;
+    const [persona, setPersona] = useState({
+        Nombre: "",
+        Apellido: "",
+        Club: club,
+        Edad: "",
+        Categoria: "",
+        Tipo: "",
+    });
 
-    const [open, setOpen] = useState(false);
-    const [formValues, setFormValues] = useState({});
-
-    useEffect(() => {
-        const obtenerDatos = async () => {
-            const datosQuery = query(
-                collection(db, "Personas"),
-                where("Club", "==", nombreClub)
-            );
-            const datosSnapshot = await getDocs(datosQuery);
-            const datosPers = datosSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setDatosPersonas(datosPers);
-        };
-
-        obtenerDatos();
-    }, [datos]);
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setFormValues((prevValues) => ({
-            ...prevValues,
-            [name]: value,
-        }));
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log(formValues); // Aquí podrías enviar los valores del formulario a un servidor o almacenarlos en el estado global de la aplicación
+    const handleSubmit = async () => {
+        await addDoc(collection(db, "Personas"),{
+            ...persona
+        });
+        setTimeout(1000)
         handleClose();
     };
-
-    // console.log(datos);
+    const handleChange = ({target: { id, value }}) => {
+        console.log(persona)
+        setPersona({ ...persona, [id]: value });
+    };
 
     return (
-        <Grid container className={classes.global}>
-            <Grid item xs={12} sm={12} className={classes.miclubBtn}>
-                {/* TODO: se va mirando
-        crear el boton de crear personas
-    */}
-                <Button variant="contained" color="primary">
-                    Crear
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Añadir alumno o entrenador</DialogTitle>
+            <DialogContent>
+                <form className={classes.form} onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                name="name"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="Nombre"
+                                label="Nombre"
+                                onChange={handleChange}
+                                autoFocus
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="Apellido"
+                                label="Apellido"
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="Edad"
+                                label="Edad"
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={9}>
+                            <TextField
+                                variant="outlined"
+                                fullWidth
+                                id="Categoria"
+                                placeholder="Cadete / Junior / Senior"
+                                label="Categoria"
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                label="Tipo"
+                                id="Tipo"
+                                placeholder="Entrenador / Competidor"
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        className={classes.submit}
+                    >
+                        Registrar
+                    </Button>
+                </form>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>Cancelar</Button>
+                <Button onClick={handleSubmit} color="primary">
+                    Enviar
                 </Button>
-            </Grid>
-            <TableContainer>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left">
-                                <Typography>Nombre</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Apellido</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Edad</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Categoria</Typography>
-                            </TableCell>
-                            <TableCell align="left">
-                                <Typography>Tipo</Typography>
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {datosPersonas.map((row) => (
-                            <TableRow>
-                                <TableCell align="left">
-                                    <Typography>{row.Nombre}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Apellido}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Edad}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Categoria}</Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography>{row.Tipo}</Typography>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Grid>
+            </DialogActions>
+        </Dialog>
     );
 }
