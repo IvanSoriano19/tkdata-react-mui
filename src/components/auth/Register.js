@@ -62,8 +62,10 @@ export function Register(props) {
         id: "", 
         name: "",
         provincia: "",
+        direccion: "",
         email: "",
         telefono: "",
+        tipoClub: "",
         password: ""
     });
 
@@ -133,6 +135,27 @@ export function Register(props) {
                                 fullWidth
                                 id="provincia"
                                 label="Provincia"
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="direccion"
+                                label="Direccion"
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="tipoClub"
+                                label="Tipo de club"
+                                placeholder="Combate / Técnica"
                                 onChange={handleChange}
                             />
                         </Grid>

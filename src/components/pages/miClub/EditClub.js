@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import React, { useState } from "react";
 import { db } from "../../../firebase-config";
-import { addDoc, collection} from "firebase/firestore";
+import { doc, updateDoc} from "firebase/firestore";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -36,32 +36,33 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export function Personas(props) {
+export function EditClub(props) {
     const classes = useStyles();
     const { open, handleClose, club } = props;
-    const [persona, setPersona] = useState({
-        Nombre: "",
-        Apellido: "",
-        Club: club,
-        Edad: "",
-        Categoria: "",
-        Tipo: "",
+    const [editClub, setEditClub] = useState({
+        telefono: club.telefono || "",
+        tipoClub: club.tipoClub || "",
+        provincia: club.provincia || "",
+        direccion: club.direccion || ""
     });
 
-    const handleSubmit = async () => {
-        await addDoc(collection(db, "Personas"),{
-            ...persona
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        const docRef = doc(db, "clubes", club.id);
+        await updateDoc(docRef,{
+            ...editClub
         });
         setTimeout(1000)
         handleClose();
     };
     const handleChange = ({target: { id, value }}) => {
-        setPersona({ ...persona, [id]: value });
+        console.log(editClub)
+        setEditClub({ ...editClub, [id]: value });
     };
 
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Añadir alumno o entrenador</DialogTitle>
+            <DialogTitle>Editar club</DialogTitle>
             <DialogContent>
                 <form className={classes.form} onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
@@ -69,10 +70,10 @@ export function Personas(props) {
                             <TextField
                                 name="name"
                                 variant="outlined"
-                                required
                                 fullWidth
-                                id="Nombre"
-                                label="Nombre"
+                                id="telefono"
+                                label="Telefono"
+                                value={editClub.telefono}
                                 onChange={handleChange}
                                 autoFocus
                             />
@@ -80,44 +81,34 @@ export function Personas(props) {
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 variant="outlined"
-                                required
                                 fullWidth
-                                id="Apellido"
-                                label="Apellido"
+                                id="tipoClub"
+                                label="Tipo de club"
+                                value={editClub.tipoClub}
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={3}>
-                            <TextField
-                                variant="outlined"
-                                required
-                                fullWidth
-                                id="Edad"
-                                label="Edad"
-                                onChange={handleChange}
-                            />
-                        </Grid>
-                        <Grid item xs={9}>
+                        <Grid item xs={12} sm={6}>
                             <TextField
                                 variant="outlined"
                                 fullWidth
-                                id="Categoria"
-                                placeholder="Cadete / Junior / Senior"
-                                label="Categoria"
+                                id="provincia"
+                                label="Provincia"
+                                value={editClub.provincia}
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={6}>
                             <TextField
                                 variant="outlined"
-                                required
                                 fullWidth
-                                label="Tipo"
-                                id="Tipo"
-                                placeholder="Entrenador / Competidor"
+                                id="direccion"
+                                label="Direccion"
+                                value={editClub.direccion}
                                 onChange={handleChange}
                             />
                         </Grid>
+                        
                     </Grid>
                     <Button
                         type="submit"
@@ -125,16 +116,14 @@ export function Personas(props) {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={handleSubmit}
                     >
-                        Registrar
+                        Guardar cambios
                     </Button>
                 </form>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>Cancelar</Button>
-                <Button onClick={handleSubmit} color="primary">
-                    Enviar
-                </Button>
             </DialogActions>
         </Dialog>
     );

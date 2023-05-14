@@ -27,7 +27,16 @@ import {
 import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
 import { Personas } from "./Personas";
+import { EditClub } from "./EditClub";
 // import { Personas } from "./Personas.js";
+
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: "#447cc1",
+        },
+    },
+});
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -58,24 +67,19 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: "center",
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
-        paddingLeft:"13%"
+        paddingLeft: "13%",
     },
 }));
 
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: "#447cc1",
-        },
-    },
-});
+
 
 export function MiClub() {
     const classes = useStyles();
     const { user } = useAuth();
     const [datos, setDatos] = useState(null);
     const [datosPersonas, setDatosPersonas] = useState([]);
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
 
     const handleClick = () => {
         setOpen(true);
@@ -85,25 +89,31 @@ export function MiClub() {
         setOpen(false);
     };
 
-    const getData = useCallback(async () => {
-        try {
-            const docRef = doc(db, "clubes", user.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setDatos(data);
-            } else {
+    const handleClickEdit = () => {
+        setOpenEdit(true);
+    };
+
+    const handleCloseEdit = () => {
+        setOpenEdit(false);
+    };
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                const docRef = doc(db, "clubes", user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setDatos(data);
+                } else {
+                    setDatos(null);
+                }
+            } catch (error) {
+                console.error(error);
                 setDatos(null);
             }
-        } catch (error) {
-            console.error(error);
-            setDatos(null);
-        }
-    }, [user]);
-
-    useEffect(() => {
+        };
         getData();
-    }, [user, getData]);
+    }, [user]);
 
     useEffect(() => {
         const obtenerDatos = async () => {
@@ -126,7 +136,83 @@ export function MiClub() {
             <Navbar />
             <ThemeProvider theme={theme} className={classes.root}>
                 {datos ? (
-                    formData(classes, datos)
+                    <Container maxWidth="md" className={classes.global}>
+                        <Grid container spacing={2}>
+                            <Grid
+                                item
+                                xs={12}
+                                sm={12}
+                                className={classes.miclubBtn}
+                            >
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleClickEdit}
+                                >
+                                    Editar
+                                </Button>
+                                <EditClub
+                                    open={openEdit}
+                                    handleClose={handleCloseEdit}
+                                    club={datos}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    className={classes.miclub}
+                                    disabled
+                                    label="Nombre del club"
+                                    defaultValue={datos.name}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    className={classes.miclub}
+                                    disabled
+                                    label="Email del club"
+                                    defaultValue={datos.email}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    className={classes.miclub}
+                                    disabled
+                                    label="Telefono del club"
+                                    defaultValue={datos.telefono}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    className={classes.miclub}
+                                    disabled
+                                    label="Tipo de club"
+                                    defaultValue={datos.tipoClub}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    className={classes.miclub}
+                                    disabled
+                                    label="Provincia del club"
+                                    defaultValue={datos.provincia}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    className={classes.miclub}
+                                    disabled
+                                    label="Direccion del club"
+                                    defaultValue={datos.direccion}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                        </Grid>
+                    </Container>
                 ) : (
                     <div>Loading</div>
                 )}
@@ -138,9 +224,6 @@ export function MiClub() {
                             sm={12}
                             className={classes.miclubBtn}
                         >
-                            {/* TODO: se va mirando
-                            crear el boton de crear personas
-                        */}
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -163,9 +246,7 @@ export function MiClub() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell align="left">
-                                                <Typography>
-                                                    Nombre
-                                                </Typography>
+                                                <Typography>Nombre</Typography>
                                             </TableCell>
                                             <TableCell align="left">
                                                 <Typography>
@@ -186,6 +267,7 @@ export function MiClub() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
+                                        {/* mirar a ver como eliminar alguna persona */}
                                         {datosPersonas.map((row) => (
                                             <TableRow>
                                                 <TableCell align="left">
@@ -225,58 +307,5 @@ export function MiClub() {
                 )}
             </ThemeProvider>
         </div>
-    );
-}
-
-function formData(classes, datos) {
-    return (
-        <Container maxWidth="md" className={classes.global}>
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} className={classes.miclubBtn}>
-                    {/* TODO: se va mirando
-                        hay que hacer que los textfield se habiliten menos el email del club(ya que es con lo que se inicia sesion)
-                    */}
-                    <Button variant="contained" color="primary">
-                        Editar
-                    </Button>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        className={classes.miclub}
-                        disabled
-                        label="Nombre del club"
-                        defaultValue={datos.name}
-                        variant="outlined"
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        className={classes.miclub}
-                        disabled
-                        label="Email del club"
-                        defaultValue={datos.email}
-                        variant="outlined"
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        className={classes.miclub}
-                        disabled
-                        label="Telefono del club"
-                        defaultValue={datos.telefono}
-                        variant="outlined"
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        className={classes.miclub}
-                        disabled
-                        label="Provincia del club"
-                        defaultValue={datos.provincia}
-                        variant="outlined"
-                    />
-                </Grid>
-            </Grid>
-        </Container>
     );
 }
