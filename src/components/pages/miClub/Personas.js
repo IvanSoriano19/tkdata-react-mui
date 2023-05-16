@@ -53,6 +53,14 @@ export function Personas(props) {
             ...persona
         });
         setTimeout(1000)
+        setPersona({
+            Nombre: "",
+            Apellido: "",
+            Club: club,
+            Edad: "",
+            Categoria: "",
+            Tipo: "",
+        })
         handleClose();
     };
     const handleChange = ({target: { id, value }}) => {
@@ -125,16 +133,14 @@ export function Personas(props) {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={handleSubmit}
                     >
-                        Registrar
+                        Crear
                     </Button>
                 </form>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>Cancelar</Button>
-                <Button onClick={handleSubmit} color="primary">
-                    Enviar
-                </Button>
             </DialogActions>
         </Dialog>
     );

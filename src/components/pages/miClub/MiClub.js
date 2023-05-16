@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar } from "../../home/Navbar";
 import {
     Container,
@@ -72,7 +72,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-
 export function MiClub() {
     const classes = useStyles();
     const { user } = useAuth();
@@ -96,6 +95,7 @@ export function MiClub() {
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
+    
     useEffect(() => {
         const getData = async () => {
             try {
