@@ -58,8 +58,11 @@ const useStyles = makeStyles((theme) => ({
     miclubBtn: {
         justifyContent: "flex-end",
     },
+    miclubBtnCrear: {
+        justifyContent: "flex-end",
+        marginTop: "10px",
+    },
     list: {
-        // pendiente centrar la mierda esta me cago en todo
         marginTop: "30px",
         width: "80%",
         display: "flex",
@@ -126,6 +129,8 @@ export function MiClub() {
                 id: doc.id,
                 ...doc.data(),
             }));
+            console.log("datosSnapshot ",datosSnapshot)
+            console.log("datosPers ",datosPers)
             setDatosPersonas(datosPers);
         };
         obtenerDatos();
@@ -217,17 +222,18 @@ export function MiClub() {
                     <div>Loading</div>
                 )}
                 {datos ? (
-                    <Grid container className={classes.global}>
+                    <Container maxWidth="md" className={classes.global}>
                         <Grid
                             item
                             xs={12}
                             sm={12}
-                            className={classes.miclubBtn}
+                            
                         >
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleClick}
+                                className={classes.miclubBtnCrear}
                             >
                                 Crear
                             </Button>
@@ -264,6 +270,12 @@ export function MiClub() {
                                             <TableCell align="left">
                                                 <Typography>Tipo</Typography>
                                             </TableCell>
+                                            <TableCell align="left">
+                                                <Typography>Peso</Typography>
+                                            </TableCell>
+                                            <TableCell align="left">
+                                                <Typography>Sexo</Typography>
+                                            </TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -295,13 +307,23 @@ export function MiClub() {
                                                         {row.Tipo}
                                                     </Typography>
                                                 </TableCell>
+                                                <TableCell align="left">
+                                                    <Typography>
+                                                        {row.Peso}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    <Typography>
+                                                        {row.Sexo}
+                                                    </Typography>
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
                         </Grid>
-                    </Grid>
+                    </Container>
                 ) : (
                     <div>Loading</div>
                 )}

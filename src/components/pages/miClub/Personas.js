@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     form: {
         width: "100%",
         marginTop: theme.spacing(3),
-    },
+    }, 
     submit: {
         margin: theme.spacing(3, 0, 2),
         backgroundColor: "#447cc1",
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     },
     formControl: {
         margin: theme.spacing(1),
-        minWidth: 120,
+        minWidth: 200,
     },
     selectEmpty: {
         marginTop: theme.spacing(2),
@@ -135,7 +135,6 @@ export function Personas(props) {
         Tipo: "",
         Sexo: "",
     });
-    console.log(persona);
     const handleChange = (event, campo) => {
         const { value } = event.target;
         setPersona({ ...persona, [campo]: value });
@@ -143,7 +142,6 @@ export function Personas(props) {
         console.log("value: ", value);
         // setPersona({ ...persona, [id]: value });
     };
-    //? Aqui está el como hacer la eleccion de peso
     useEffect(() => {
         if (persona.Categoria === "Cadete") {
             if (persona.Sexo === "Masculino") {
@@ -164,7 +162,6 @@ export function Personas(props) {
                 setContenidoFiltrado(seniorF);
             }
         }
-        console.log(contenidoFiltrado);
     }, [categoriaSeleccionada, sexoSeleccionado]);
 
     const handleChangeCategoria = (event) => {
@@ -175,33 +172,40 @@ export function Personas(props) {
         const sexo = event.target.value;
         setSexoSeleccionado(sexo);
     };
+    const handleChangeTipo = (event) => {
+        const tipo = event.target.value;
+        setSexoSeleccionado(tipo);
+    };
     const handleChangePeso = (event) => {
         const peso = event.target.value;
         setPesoSeleccionado(peso);
     };
     const handleSubmit = async () => {
-        await addDoc(collection(db, "Personas"), {
-            ...persona,
-            Peso : pesoSeleccionado,
-        });
-        setTimeout(1000);
-        setPersona({
-            Nombre: "",
-            Apellido: "",
-            Club: club,
-            Edad: "",
-            Categoria: "",
-            Peso: "",
-            Tipo: "",
-            Sexo: "",
-        });
-        handleClose();
+        try {
+            await addDoc(collection(db, "Personas"), {
+                ...persona,
+                Peso: pesoSeleccionado,
+            });
+            setPersona({
+                Nombre: "",
+                Apellido: "",
+                Club: club,
+                Edad: "",
+                Categoria: "",
+                Peso: "",
+                Tipo: "",
+                Sexo: "",
+            });
+            handleClose();
+        } catch (error) {
+            console.error("Error al guardar en la base de datos:", error);
+        }
     };
     return (
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Añadir alumno o entrenador</DialogTitle>
             <DialogContent>
-                <form className={classes.form} onSubmit={handleSubmit}>
+                <form className={classes.form}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <TextField
@@ -231,7 +235,6 @@ export function Personas(props) {
                                 fullWidth
                                 row
                                 id="Sexo"
-                                // value={value}
                                 onChange={(e) => {
                                     handleChange(e, "Sexo");
                                     handleChangeSexo(e);
@@ -260,15 +263,26 @@ export function Personas(props) {
                             />
                         </Grid>
                         <Grid item xs={3}>
-                            <TextField
+                            <FormControl
                                 variant="outlined"
-                                required
                                 fullWidth
                                 label="Tipo"
                                 id="Tipo"
-                                placeholder="Entrenador / Competidor"
-                                onChange={handleChange}
-                            />
+                            >
+                                <InputLabel>Tipo</InputLabel>
+                                <Select
+                                    id="Tipo"
+                                    onChange={(e) => {
+                                        handleChange(e, "Tipo");
+                                        handleChangeTipo(e);
+                                    }}
+                                    required
+                                    label="Tipo"
+                                >
+                                    <MenuItem value={"Competidor"}>Competidor</MenuItem>
+                                    <MenuItem value={"Entrenador"}>Entrenador</MenuItem>
+                                </Select>
+                            </FormControl>
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <FormControl
