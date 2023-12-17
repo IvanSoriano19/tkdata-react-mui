@@ -65,7 +65,7 @@ export function Navbar() {
     return (
         <div className={classes.root}>
             <ThemeProvider theme={theme}>
-                <AppBar position="static" color="primary">
+                <AppBar position="fixed" color="primary">
                     <Toolbar>
                         <Grid container spacing={12}>
                             <Button
