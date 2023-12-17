@@ -15,7 +15,7 @@ import {
     FormControlLabel,
     Radio,
 } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { setState, useEffect, useState } from "react";
 import { db } from "../../../firebase-config";
 import { addDoc, collection } from "firebase/firestore";
 
@@ -125,6 +125,8 @@ export function Personas(props) {
     const [sexoSeleccionado, setSexoSeleccionado] = useState("");
     const [pesoSeleccionado, setPesoSeleccionado] = useState("");
     const [contenidoFiltrado, setContenidoFiltrado] = useState([]);
+    const [state, setState] = useState({});
+    const forceUpdate = () => setState({});
     const [persona, setPersona] = useState({
         Nombre: "",
         Apellido: "",
@@ -140,6 +142,7 @@ export function Personas(props) {
         setPersona({ ...persona, [campo]: value });
         console.log("id: ", campo);
         console.log("value: ", value);
+        console.log(persona)
         // setPersona({ ...persona, [id]: value });
     };
     useEffect(() => {
@@ -180,7 +183,8 @@ export function Personas(props) {
         const peso = event.target.value;
         setPesoSeleccionado(peso);
     };
-    const handleSubmit = async () => {
+    const handleSubmit = async (event) => {
+        event.preventDefault();
         try {
             await addDoc(collection(db, "Personas"), {
                 ...persona,
@@ -196,6 +200,7 @@ export function Personas(props) {
                 Tipo: "",
                 Sexo: "",
             });
+            setTimeout(() => forceUpdate(), 100);
             handleClose();
         } catch (error) {
             console.error("Error al guardar en la base de datos:", error);

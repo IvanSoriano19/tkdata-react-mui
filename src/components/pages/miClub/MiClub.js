@@ -42,7 +42,15 @@ const useStyles = makeStyles((theme) => ({
     root: {
         // alignItems: "center",
         width: "90%",
-        margin: "auto",
+        marginTop: "60px"
+        // margin: "auto",
+    },
+    globalTop: {
+        alignItems: "center",
+        width: "80%",
+        backgroundColor: "#f8f6f4",
+        borderRadius: "15px",
+        marginTop: "100px",
     },
     global: {
         alignItems: "center",
@@ -50,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
         marginTop: "30px",
+        marginBottom: "30px"
     },
     miclub: {
         width: "100%",
@@ -141,7 +150,7 @@ export function MiClub() {
             <Navbar />
             <ThemeProvider theme={theme} className={classes.root}>
                 {datos ? (
-                    <Container maxWidth="md" className={classes.global}>
+                    <Container maxWidth="md" className={classes.globalTop}>
                         <Grid container spacing={2}>
                             <Grid
                                 item
