@@ -5,7 +5,6 @@ import {
     makeStyles,
     Grid,
     TextField,
-    Button,
     ThemeProvider,
     createTheme,
     Table,
@@ -15,6 +14,8 @@ import {
     TableHead,
     TableRow,
     Typography,
+    Checkbox,
+    IconButton,
 } from "@material-ui/core";
 import {
     collection,
@@ -23,12 +24,14 @@ import {
     getDocs,
     query,
     where,
+    getFirestore,
+    writeBatch,
 } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
 import { Personas } from "./Personas";
 import { EditClub } from "./EditClub";
-// import { Personas } from "./Personas.js";
+import { EditOutlined, DeleteOutlineOutlined, AddCircle } from "@material-ui/icons";
 
 const theme = createTheme({
     palette: {
@@ -42,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     root: {
         // alignItems: "center",
         width: "90%",
-        marginTop: "60px"
+        marginTop: "60px",
         // margin: "auto",
     },
     globalTop: {
@@ -58,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
         marginTop: "30px",
-        marginBottom: "30px"
+        marginBottom: "30px",
     },
     miclub: {
         width: "100%",
@@ -67,22 +70,22 @@ const useStyles = makeStyles((theme) => ({
     miclubBtn: {
         justifyContent: "flex-end",
     },
-    miclubBtnCrear: {
+    miclubBtnEditar: {
+        justifyContent: "flex-end",
+    },
+    personaBtnCrear: {
         justifyContent: "flex-end",
         marginTop: "10px",
     },
-    list: {
-        marginTop: "30px",
-        width: "80%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f8f6f4",
-        borderRadius: "15px",
-        paddingLeft: "13%",
+    personaBtnEditar: {
+        justifyContent: "flex-end",
+        marginTop: "10px",
+    },
+    personaBtnEliminar: {
+        justifyContent: "flex-end",
+        marginTop: "10px",
     },
 }));
-
 
 export function MiClub() {
     const classes = useStyles();
@@ -91,13 +94,25 @@ export function MiClub() {
     const [datosPersonas, setDatosPersonas] = useState([]);
     const [open, setOpen] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
+    const [personasSeleccionadas, setPersonasSeleccionadas] = useState([]);
+    const [modifyButtons, setModifyButtons] = useState("crear");
 
     const handleClick = () => {
         setOpen(true);
     };
 
-    const handleClose = () => {
+    const handleClose = async () => {
         setOpen(false);
+        const datosQuery = query(
+            collection(db, "Personas"),
+            where("Club", "==", datos.name)
+        );
+        const datosSnapshot = await getDocs(datosQuery);
+        const datosPers = datosSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        setDatosPersonas(datosPers);
     };
 
     const handleClickEdit = () => {
@@ -107,7 +122,7 @@ export function MiClub() {
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
-    
+
     useEffect(() => {
         const getData = async () => {
             try {
@@ -134,16 +149,85 @@ export function MiClub() {
                 where("Club", "==", datos.name)
             );
             const datosSnapshot = await getDocs(datosQuery);
-            const datosPers = datosSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            console.log("datosSnapshot ",datosSnapshot)
-            console.log("datosPers ",datosPers)
+            const datosPers = {};
+            datosSnapshot.docs.forEach((doc) => {
+                datosPers[doc.id] = {
+                    id: doc.id,
+                    ...doc.data(),
+                };
+            });
             setDatosPersonas(datosPers);
         };
         obtenerDatos();
     }, [datos]);
+
+    useEffect(() => {
+        if (personasSeleccionadas.length === 0) {
+            setModifyButtons("crear");
+        } else if (personasSeleccionadas.length === 1) {
+            setModifyButtons("editar");
+        } else {
+            setModifyButtons("eliminar");
+        }
+        console.log("Después de actualizar useffect:", personasSeleccionadas);
+    }, [personasSeleccionadas]);
+
+    const handleSelectPersona = (id) => {
+        const isSelected = personasSeleccionadas.includes(id);
+
+        if (isSelected) {
+            setPersonasSeleccionadas(
+                personasSeleccionadas.filter((selectedId) => selectedId !== id)
+            );
+        } else {
+            setPersonasSeleccionadas([...personasSeleccionadas, id]);
+        }
+
+        console.log(
+            "Estado de personasSeleccionadas: handleSelectPersona===",
+            personasSeleccionadas
+        );
+        console.log(
+            "Después de actualizar: handleSelectPersona===",
+            personasSeleccionadas
+        );
+    };
+
+    const handleEliminar = async () => {
+        if (personasSeleccionadas.length === 0) {
+            return;
+        }
+
+        const batch = writeBatch(getFirestore());
+
+        personasSeleccionadas.forEach((index) => {
+            console.log("index=> ", index);
+            const personaId = datosPersonas[index].id;
+            const personaRef = doc(collection(db, "Personas"), personaId);
+            batch.delete(personaRef);
+        });
+
+        try {
+            await batch.commit();
+
+            const datosQuery = query(
+                collection(db, "Personas"),
+                where("Club", "==", datos.name)
+            );
+            const datosSnapshot = await getDocs(datosQuery);
+            const datosPers = datosSnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setDatosPersonas(datosPers);
+            setModifyButtons("crear");
+            setPersonasSeleccionadas([]);
+        } catch (error) {
+            console.error("Error al eliminar personas:", error);
+        }
+    };
+
+    const handleEditar = () => {};
 
     return (
         <div>
@@ -158,13 +242,13 @@ export function MiClub() {
                                 sm={12}
                                 className={classes.miclubBtn}
                             >
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleClickEdit}
-                                >
-                                    Editar
-                                </Button>
+                                <IconButton
+                                        color="primary"
+                                        onClick={handleClickEdit}
+                                        className={classes.miclubBtnEditar}
+                                    >
+                                        <EditOutlined fontSize="large"/>
+                                    </IconButton>
                                 <EditClub
                                     open={openEdit}
                                     handleClose={handleCloseEdit}
@@ -232,20 +316,46 @@ export function MiClub() {
                 )}
                 {datos ? (
                     <Container maxWidth="md" className={classes.global}>
-                        <Grid
-                            item
-                            xs={12}
-                            sm={12}
-                            
-                        >
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleClick}
-                                className={classes.miclubBtnCrear}
-                            >
-                                Crear
-                            </Button>
+                        <Grid item xs={12} sm={12}>
+                            {modifyButtons === "crear" && (
+                                <IconButton
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleClick}
+                                    className={classes.personaBtnCrear}
+                                >
+                                    <AddCircle fontSize="large"/>
+                                </IconButton>
+                            )}
+                            {modifyButtons === "editar" && (
+                                <div>
+                                    <IconButton
+                                        color="default"
+                                        onClick={handleEditar}
+                                        className={classes.personaBtnEditar}
+                                    >
+                                        <EditOutlined fontSize="large"/>
+                                    </IconButton>
+                                    <IconButton
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={handleEliminar}
+                                        className={classes.personaBtnEliminar}
+                                    >
+                                        <DeleteOutlineOutlined fontSize="large"/>
+                                    </IconButton>
+                                </div>
+                            )}
+                            {modifyButtons === "eliminar" && (
+                                <IconButton
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={handleEliminar}
+                                    className={classes.personaBtnEliminar}
+                                >
+                                    <DeleteOutlineOutlined fontSize="large"/>
+                                </IconButton>
+                            )}
                             <Personas
                                 open={open}
                                 handleClose={handleClose}
@@ -260,37 +370,122 @@ export function MiClub() {
                                 >
                                     <TableHead>
                                         <TableRow>
+                                            <TableCell padding="checkbox"></TableCell>
                                             <TableCell align="left">
-                                                <Typography>Nombre</Typography>
+                                                <Typography variant="h6">
+                                                    Nombre
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <Typography>
+                                                <Typography variant="h6">
                                                     Apellido
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <Typography>Edad</Typography>
+                                                <Typography variant="h6">
+                                                    Edad
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <Typography>
+                                                <Typography variant="h6">
                                                     Categoria
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <Typography>Tipo</Typography>
+                                                <Typography variant="h6">
+                                                    Tipo
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <Typography>Peso</Typography>
+                                                <Typography variant="h6">
+                                                    Peso
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <Typography>Sexo</Typography>
+                                                <Typography variant="h6">
+                                                    Sexo
+                                                </Typography>
                                             </TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {/* mirar a ver como eliminar alguna persona */}
-                                        {datosPersonas.map((row) => (
-                                            <TableRow>
+                                        {Object.keys(datosPersonas).map(
+                                            (personaId) => {
+                                                const row =
+                                                    datosPersonas[personaId];
+                                                return (
+                                                    <TableRow
+                                                        key={personaId}
+                                                        role="checkbox"
+                                                    >
+                                                        <TableCell padding="checkbox">
+                                                            <Checkbox
+                                                                checked={personasSeleccionadas.includes(
+                                                                    personaId
+                                                                )}
+                                                                onChange={() =>
+                                                                    handleSelectPersona(
+                                                                        personaId
+                                                                    )
+                                                                }
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <Typography>
+                                                                {row.Nombre}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <Typography>
+                                                                {row.Apellido}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <Typography>
+                                                                {row.Edad}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <Typography>
+                                                                {row.Categoria}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <Typography>
+                                                                {row.Tipo}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <Typography>
+                                                                {row.Peso}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <Typography>
+                                                                {row.Sexo}
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            }
+                                        )}
+                                        {/* {datosPersonas.map((row, index) => (
+                                            <TableRow
+                                                key={index}
+                                                role="checkbox"
+                                            >
+                                                <TableCell padding="checkbox">
+                                                    <Checkbox
+                                                        checked={personasSeleccionadas.includes(
+                                                            row.id
+                                                        )}
+                                                        onChange={() =>
+                                                            handleSelectPersona(
+                                                                row.id
+                                                            )
+                                                        }
+                                                    />
+                                                </TableCell>
                                                 <TableCell align="left">
                                                     <Typography>
                                                         {row.Nombre}
@@ -327,7 +522,7 @@ export function MiClub() {
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
-                                        ))}
+                                        ))} */}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
