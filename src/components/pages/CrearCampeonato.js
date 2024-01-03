@@ -9,9 +9,6 @@ import {
     Typography,
     CssBaseline,
     Container,
-    Select,
-    MenuItem,
-    InputLabel,
 } from "@material-ui/core";
 import { useAuth } from "../../context/authContext";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
