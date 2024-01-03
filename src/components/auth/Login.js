@@ -98,7 +98,7 @@ export function Login() {
                 <Typography component="h1" variant="h5">
                     Iniciar Sesión
                 </Typography>
-                <form className={classes.form} onSubmit={handleSubmit}>
+                <form className={classes.form}>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -126,6 +126,7 @@ export function Login() {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={handleSubmit}
                     >
                         Iniciar Sesión
                     </Button>
