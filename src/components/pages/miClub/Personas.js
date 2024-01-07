@@ -140,10 +140,6 @@ export function Personas(props) {
     const handleChange = (event, campo) => {
         const { value } = event.target;
         setPersona({ ...persona, [campo]: value });
-        console.log("id: ", campo);
-        console.log("value: ", value);
-        console.log(persona)
-        // setPersona({ ...persona, [id]: value });
     };
     useEffect(() => {
         if (persona.Categoria === "Cadete") {

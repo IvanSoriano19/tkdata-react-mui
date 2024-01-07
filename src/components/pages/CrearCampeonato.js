@@ -13,6 +13,7 @@ import {
 import { useAuth } from "../../context/authContext";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import { useNavigate } from "react-router-dom";
 
 const theme = createTheme({
     palette: {
@@ -24,7 +25,7 @@ const theme = createTheme({
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
+        marginTop: theme.spacing(10),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -49,14 +50,15 @@ const useStyles = makeStyles((theme) => ({
 export function CrearCampeonato() {
     const classes = useStyles();
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [datos, setDatos] = useState(null);
-    const [campeonato, setCampeonato] = useState({
+    const [campeonatos, setCampeonatos] = useState({
         nombre: "",
         lugar: "",
         direccion: "",
         fecha: "",
-        organizador: user ? user.uid : "",
-        clubes: [user.uid],
+        organizador:"",
+        clubes: [],
         tipo: "",
         categorias: "",
     });
@@ -80,29 +82,50 @@ export function CrearCampeonato() {
         getData();
     }, [user]);
 
-    const handleSubmit = async () => {
-        await addDoc(collection(db, "Campeonato"), {
-            ...campeonato,
-        });
-        setTimeout(6000);
-        setCampeonato({
-            nombre: "",
-            lugar: "",
-            direccion: "",
-            fecha: "",
-            organizador: user ? user.uid : "",
-            clubes: [user.uid],
-            tipo: "",
-            categorias: "",
-        });
-        console.log("se ha subido... creo");
-        setTimeout(6000);
+    const handleSubmit = async (e) => {
+        e.preventDefault(); 
+
+        if (!campeonatos.nombre || !campeonatos.fecha || !campeonatos.lugar || !campeonatos.direccion || !campeonatos.tipo || !campeonatos.categorias) {
+            return;
+        }
+        try {
+            const clubDocRef = doc(db, "clubes", user.uid);
+            const clubDocSnap = await getDoc(clubDocRef);
+            
+            if (clubDocSnap.exists()) {
+                const clubData = clubDocSnap.data();
+
+                const newCampeonato = {
+                    ...campeonatos,
+                    organizador: clubData.name,
+                    clubes: [clubData.name],
+                };
+
+                await addDoc(collection(db, "Campeonatos"), newCampeonato);
+
+                setCampeonatos({
+                    nombre: "",
+                    lugar: "",
+                    direccion: "",
+                    fecha: "",
+                    organizador: "",
+                    clubes: [],
+                    tipo: "",
+                    categorias: "",
+                });
+                navigate('/campeonatos')
+            } else {
+                console.log("no hay datos del club");
+            }
+        } catch (error) {
+            console.error("Error al agregar el campeonato:", error);
+        }
     };
     // console.log(datos)
 
     const handleChange = ({ target: { id, value } }) => {
-        setCampeonato({ ...campeonato, [id]: value });
-        console.log(campeonato);
+        setCampeonatos({ ...campeonatos, [id]: value });
+        console.log(campeonatos);
     };
 
     return (
@@ -115,10 +138,7 @@ export function CrearCampeonato() {
                     <Typography component="h1" variant="h5">
                         Crear Campeonato
                     </Typography>
-                    <form
-                        className={classes.form}
-                        // onSubmit={handleSubmit}
-                    >
+                    <form className={classes.form} onSubmit={handleSubmit}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12}>
                                 <TextField
@@ -204,7 +224,6 @@ export function CrearCampeonato() {
                             variant="contained"
                             color="primary"
                             className={classes.submit}
-                            onClick={handleSubmit}
                         >
                             Registrar
                         </Button>

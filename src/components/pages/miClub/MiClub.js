@@ -229,7 +229,7 @@ export function MiClub() {
             console.error("Error al eliminar personas:", error);
         }
     };
-
+    //TODO
     const handleEditar = () => {};
 
     return (
@@ -472,60 +472,6 @@ export function MiClub() {
                                                 );
                                             }
                                         )}
-                                        {/* {datosPersonas.map((row, index) => (
-                                            <TableRow
-                                                key={index}
-                                                role="checkbox"
-                                            >
-                                                <TableCell padding="checkbox">
-                                                    <Checkbox
-                                                        checked={personasSeleccionadas.includes(
-                                                            row.id
-                                                        )}
-                                                        onChange={() =>
-                                                            handleSelectPersona(
-                                                                row.id
-                                                            )
-                                                        }
-                                                    />
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <Typography>
-                                                        {row.Nombre}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <Typography>
-                                                        {row.Apellido}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <Typography>
-                                                        {row.Edad}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <Typography>
-                                                        {row.Categoria}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <Typography>
-                                                        {row.Tipo}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <Typography>
-                                                        {row.Peso}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <Typography>
-                                                        {row.Sexo}
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))} */}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
