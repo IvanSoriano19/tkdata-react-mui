@@ -6,8 +6,8 @@ import { Login } from "./components/auth/Login";
 import { AuthProvider } from "./context/authContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MiClub } from "./components/pages/miClub/MiClub";
-import { Campeonatos } from "./components/pages/Campeonatos";
-import { CrearCampeonato } from "./components/pages/CrearCampeonato";
+import { Campeonatos } from "./components/pages/campeonatos/Campeonatos";
+import { CrearCampeonato } from "./components/pages/campeonatos/CrearCampeonato";
 
 function App() {
     return (

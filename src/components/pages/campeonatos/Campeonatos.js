@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navbar } from "../home/Navbar";
+import { Navbar } from "../../home/Navbar";
 import {
     Container,
     Grid,
@@ -9,17 +9,15 @@ import {
     Card,
     CardContent
 } from "@material-ui/core";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../../context/authContext";
 import {
     collection,
     doc,
     getDoc,
     getDocs,
     query,
-    where,
-    getFirestore
 } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../../firebase-config";
 
 const theme = createTheme({
     palette: {

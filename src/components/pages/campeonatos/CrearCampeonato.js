@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navbar } from "../home/Navbar";
+import { Navbar } from "../../home/Navbar";
 import {
     createTheme,
     makeStyles,
@@ -10,9 +10,9 @@ import {
     CssBaseline,
     Container,
 } from "@material-ui/core";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../../context/authContext";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../../firebase-config";
 import { useNavigate } from "react-router-dom";
 
 const theme = createTheme({

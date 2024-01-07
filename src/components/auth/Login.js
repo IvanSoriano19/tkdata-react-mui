@@ -11,7 +11,7 @@ import {
     Box,
 } from "@material-ui/core";
 import { LockOutlined } from "@material-ui/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 // import ImageLogin from "../images/login.jpg";
@@ -51,27 +51,35 @@ const useStyles = makeStyles((theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2),
         backgroundColor: "#447cc1",
-        '&:hover':{
+        "&:hover": {
             backgroundColor: "#2765B0",
-        }
+        },
     },
-    
 }));
 
 export function Login() {
     const classes = useStyles();
     const navigate = useNavigate();
     const [user, setUser] = useState({
-        name: "",
+        email: "",
         password: "",
     });
 
     const { login } = useAuth();
     const [errors, setErrors] = useState();
 
+    // const handleChange = ({ target: { id, value } }) => {
+    //     setUser({ ...user, [id]: value });
+    //     console.log(user)
+    // };
     const handleChange = ({ target: { id, value } }) => {
-        setUser({ ...user, [id]: value });
+        setUser((prevUser) => {
+            const newUser = { ...prevUser, [id]: value };
+            console.log(newUser);
+            return newUser;
+        });
     };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -98,7 +106,7 @@ export function Login() {
                 <Typography component="h1" variant="h5">
                     Iniciar Sesión
                 </Typography>
-                <form className={classes.form}>
+                <form className={classes.form} onSubmit={handleSubmit}>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -126,7 +134,6 @@ export function Login() {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={handleSubmit}
                     >
                         Iniciar Sesión
                     </Button>
