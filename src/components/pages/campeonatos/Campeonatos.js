@@ -7,8 +7,11 @@ import {
     createTheme,
     makeStyles,
     Card,
-    CardContent
+    CardContent,
+    IconButton,
+    ThemeProvider
 } from "@material-ui/core";
+import { AddBoxRounded} from '@material-ui/icons';
 import { useAuth } from "../../../context/authContext";
 import {
     collection,
@@ -16,6 +19,7 @@ import {
     getDoc,
     getDocs,
     query,
+    where,
 } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 
@@ -52,17 +56,27 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
     },
-    tituloHeader:{
+    campeonatos:{
+        display:"flex",
         alignItems: "center",
-        width: "100%",
-        display: "flex"
+        justifyContent: "center",
+        margin:"10px"
+    },
+    campeonatoNombre:{
+        marginBottom:"5px"
+    },
+    btnCampeonato: {
+        display:"flex",
+        alignItems:"right",
+        justifyContent: "right",
+        marginTop: "-12px",
+        color: theme.palette.primary
     }
 }));
 
 export function Campeonatos() {
     const classes = useStyles();
     const { user } = useAuth();
-    const [datos, setDatos] = useState(null);
     const [datosCampeonatos, setDatosCampeonatos] = useState(null);
 
     const obtenerDatosCampeonatos = async () => {
@@ -73,18 +87,19 @@ export function Campeonatos() {
             await Promise.all(
                 campeonatosSnapshot.docs.map(async (doc1) => {
                     const data = doc1.data();
-                    // Obtener datos de los clubes asociados a cada campeonato
                     const clubesUids = Object.values(data.clubes);
-                    const clubesPromises = clubesUids.map(async (uid) => {
+                    const clubesPromises = clubesUids.map(async (nombre) => {
                         try {
-                            const clubDocRef = doc(db, "clubes", uid);
-                            const clubDocSnap = await getDoc(clubDocRef);
-                            if (clubDocSnap.exists()) {
-                                const clubData = clubDocSnap.data();
-                                console.log(clubData.name)
-                                return { [uid]: clubData.name };
-                            }
-                            return null;
+                            const clubQuery = query(
+                                collection(db, "clubes"),
+                                where("name", "==", nombre)
+                            );
+                            const clubSnapshot = await getDocs(clubQuery);
+                        if (!clubSnapshot.empty) {
+                            const clubData = clubSnapshot.docs[0].data();
+                            return { [clubData.id]: clubData.name };
+                        }
+                        return null;
                         } catch (error) {
                             console.error(
                                 "Error al obtener el documento del club:",
@@ -113,61 +128,19 @@ export function Campeonatos() {
         }
     };
 
-    // Llamada a la función para obtener los datos de campeonatos
     useEffect(() => {
         obtenerDatosCampeonatos();
     }, []);
 
-    // useEffect(() => {
-    //     const getData = async () => {
-    //         try {
-    //             const docRef = doc(db, "clubes", user.uid);
-    //             const docSnap = await getDoc(docRef);
-    //             if (docSnap.exists()) {
-    //                 const data = docSnap.data();
-    //                 setDatos(data);
-    //             } else {
-    //                 setDatos(null);
-    //             }
-    //             console.log(user)
-    //         } catch (error) {
-    //             console.error(error);
-    //             setDatos(null);
-    //         }
-    //     };
-    //     getData();
-    // }, [user]);
-
-    // useEffect(() => {
-    //     const obtenerDatos = async () => {
-    //         const datosQuery = query(
-    //             collection(db, "Campeonatos"),
-    //             where("organizador", "==", user.id)
-    //         );
-    //         console.log(datosQuery)
-    //         const datosSnapshot = await getDocs(datosQuery);
-    //         const datosCto = {};
-    //         console.log(datosSnapshot)
-    //         datosSnapshot.docs.forEach((doc) => {
-    //             datosCto[doc.id] = {
-    //                 id: doc.id,
-    //                 ...doc.data(),
-    //             };
-    //         });
-    //         setDatosCampeonatos(datosCto);
-    //         console.log(datosCto)
-    //     };
-    //     obtenerDatos();
-    // }, [datos]);
-
     return (
         <div>
             <Navbar />
+            <ThemeProvider theme={theme}>
             <Container maxWidth="md" className={classes.global}>
             <Grid container spacing={2}>
                 <Grid container xs={5} className={classes.rightSide}>
-                    <Grid item xs={12} sm={12} spacing={2}>
-                        <Typography variant="h6">Campeonatos</Typography>
+                    <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
+                        <Typography variant="h4">Campeonatos</Typography>
                     </Grid>
                     <Grid item xs={10}  spacing={2}>
                         {datosCampeonatos &&
@@ -175,14 +148,23 @@ export function Campeonatos() {
                                 <Grid item xs={12} key={campeonato.id}>
                                     <Card>
                                         <CardContent>
-                                            <Typography spacing={1} variant="h6">{campeonato.nombre}</Typography>
+                                            <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
                                             <Grid container spacing={1}>
                                                 <Grid item xs={12}><Typography>Fecha: {campeonato.fecha}</Typography></Grid>
                                                 <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
                                                 <Grid item xs={12}><Typography>Organizador: {campeonato.organizador}</Typography></Grid>
                                                 <Grid item xs={12}><Typography>Categorias: {campeonato.categorias}</Typography></Grid>
-                                                <Grid item xs={12}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length : 0}</Typography></Grid>
-                                                {console.log(campeonato.organizador)}
+                                                <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
+                                                <Grid item xs={6} className={classes.btnCampeonato}>
+                                                    <IconButton
+                                                        color="primary"
+                                                        // onClick={}
+                                                        
+                                                    >
+                                                        <AddBoxRounded/>
+                                                    </IconButton>
+                                                </Grid>
+                                                {console.log(campeonato.clubes)}
                                             </Grid>
                                             {/* Otras propiedades del campeonato... */}
                                             {/* <Typography variant="subtitle1">Clubes:</Typography> */}
@@ -208,10 +190,11 @@ export function Campeonatos() {
                 <Grid item xs={1}></Grid>
                 <Grid item xs={5} className={classes.rightSide}>
                     <Typography variant="h6">Mis campeonatos</Typography>
-                    {/* Puedes implementar algo similar aquí para tus campeonatos personales */}
+                    {/* TODO Poner campeonatos en los que estoy inscrito  */}
                 </Grid>
             </Grid>
         </Container>
+        </ThemeProvider>
         </div>
     );
 }
