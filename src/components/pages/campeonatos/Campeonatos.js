@@ -42,28 +42,29 @@ const useStyles = makeStyles((theme) => ({
     },
     leftSide: {
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "left",
+        alignItems: "flex-start",
+        justifyContent: "center",
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
-        marginRight: "0px",
     },
     rightSide: {
-        // Estilos para la mitad derecha
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
     },
-    campeonatos:{
+    campeonatos: {
         display:"flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
-        margin:"10px"
+        margin:"10px",
+    },
+    card: {
+        marginBottom:"15px",
     },
     campeonatoNombre:{
-        marginBottom:"5px"
+        marginBottom:"5px",
     },
     btnCampeonato: {
         display:"flex",
@@ -163,7 +164,7 @@ export function Campeonatos() {
             ctos &&
                 Object.values(ctos).map((campeonato) => (
                     <Grid item xs={12} key={campeonato.id}>
-                        <Card>
+                        <Card className={classes.card}>
                             <CardContent>
                                 <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
                                 <Grid container spacing={1}>
@@ -210,27 +211,27 @@ export function Campeonatos() {
         <div>
             <Navbar />
             <ThemeProvider theme={theme}>
-            <Container maxWidth="md" className={classes.global}>
-            <Grid container spacing={2}>
-                <Grid container xs={5} className={classes.rightSide}>
-                    <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
-                        <Typography variant="h4">Campeonatos</Typography>
+                <Container maxWidth="md" className={classes.global}>
+                    <Grid container spacing={2}>
+                        <Grid container xs={5} className={classes.leftSide}>
+                            <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
+                                <Typography variant="h4">Campeonatos</Typography>
+                            </Grid>
+                            <Grid item xs={10}  spacing={2}>
+                                {mostrarCampeonatos(datosCampeonatos)}
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={1}></Grid>
+                        <Grid container xs={5} className={classes.rightSide}>
+                            <Grid className={classes.campeonatos} xs={12} sm={12} spacing={2}>
+                                <Typography variant="h4">Mis campeonatos</Typography>
+                            </Grid>
+                            <Grid item xs={10}  spacing={2}>
+                            {mostrarCampeonatos(campeonatosUsuario)}
+                            </Grid>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={10}  spacing={2}>
-                        {mostrarCampeonatos(datosCampeonatos)}
-                    </Grid>
-                </Grid>
-                <Grid item xs={1}></Grid>
-                <Grid container xs={5} className={classes.rightSide}>
-                    <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
-                        <Typography variant="h4">Mis campeonatos</Typography>
-                    </Grid>
-                    <Grid item xs={10}  spacing={2}>
-                    {mostrarCampeonatos(campeonatosUsuario)}
-                    </Grid>
-                </Grid>
-            </Grid>
-        </Container>
+                </Container>
         </ThemeProvider>
         </div>
     );
