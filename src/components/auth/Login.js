@@ -11,7 +11,7 @@ import {
     Box,
 } from "@material-ui/core";
 import { LockOutlined } from "@material-ui/icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 // import ImageLogin from "../images/login.jpg";

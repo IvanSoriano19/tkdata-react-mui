@@ -47,6 +47,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                {/* <Route
+                    path="/campeonato"
+                    element={
+                        <ProtectedRoute>
+                            <Campeonato />
+                        </ProtectedRoute>
+                    }
+                /> */}
             </Routes>
         </AuthProvider>
     );
