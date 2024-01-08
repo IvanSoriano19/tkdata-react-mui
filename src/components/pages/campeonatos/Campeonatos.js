@@ -78,6 +78,7 @@ export function Campeonatos() {
     const classes = useStyles();
     const { user } = useAuth();
     const [datosCampeonatos, setDatosCampeonatos] = useState(null);
+    const [clubesUsuario, setClubesUsuario] = useState([]);
 
     const obtenerDatosCampeonatos = async () => {
         try {
@@ -128,9 +129,82 @@ export function Campeonatos() {
         }
     };
 
+    const obtenerClubesUsuario = async () => {
+        try {
+            const docRef = doc(db, "clubes", user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setClubesUsuario(data.name || []);
+            } else {
+                setClubesUsuario([]);
+            }
+        } catch (error) {
+            console.error(error);
+            setClubesUsuario([]);
+        }
+    };
+
     useEffect(() => {
         obtenerDatosCampeonatos();
+        obtenerClubesUsuario();
     }, []);
+
+
+    const campeonatosUsuario = datosCampeonatos
+    ? Object.values(datosCampeonatos).filter((campeonato) => {
+            const clubesCampeonato =  Object.values(campeonato.clubes || {});
+            return clubesCampeonato.some((club) => club === clubesUsuario);
+        })
+    : [];
+
+    const mostrarCampeonatos = (ctos) => {
+        return(
+            ctos &&
+                Object.values(ctos).map((campeonato) => (
+                    <Grid item xs={12} key={campeonato.id}>
+                        <Card>
+                            <CardContent>
+                                <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
+                                <Grid container spacing={1}>
+                                    <Grid item xs={12}><Typography>Fecha: {campeonato.fecha}</Typography></Grid>
+                                    <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
+                                    <Grid item xs={12}><Typography>Organizador: {campeonato.organizador}</Typography></Grid>
+                                    <Grid item xs={12}><Typography>Categoria: {campeonato.categoria}</Typography></Grid>
+                                    <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
+                                    <Grid item xs={6} className={classes.btnCampeonato}>
+                                        <IconButton
+                                            color="primary"
+                                            // onClick={}
+                                            
+                                        >
+                                            <AddBoxRounded/>
+                                        </IconButton>
+                                    </Grid>
+                                    {console.log(campeonato.clubes)}
+                                </Grid>
+                                {/* Otras propiedades del campeonato... */}
+                                {/* <Typography variant="subtitle1">Clubes:</Typography> */}
+                                {/* <Grid container spacing={2}>
+                                    {campeonato.clubes &&
+                                        Object.values(campeonato.clubes).map((club) => (
+                                            <Grid item xs={12} key={Object.keys(club)[0]}>
+                                                <Card>
+                                                    <CardContent>
+                                                        <Typography variant="body1">{club[Object.keys(club)[0]].name}</Typography>
+                                                        
+                                                    </CardContent>
+                                                </Card>
+                                            </Grid>
+                                        ))}
+                                </Grid> */}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))
+        )
+    }
+
 
     return (
         <div>
@@ -143,54 +217,17 @@ export function Campeonatos() {
                         <Typography variant="h4">Campeonatos</Typography>
                     </Grid>
                     <Grid item xs={10}  spacing={2}>
-                        {datosCampeonatos &&
-                            Object.values(datosCampeonatos).map((campeonato) => (
-                                <Grid item xs={12} key={campeonato.id}>
-                                    <Card>
-                                        <CardContent>
-                                            <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
-                                            <Grid container spacing={1}>
-                                                <Grid item xs={12}><Typography>Fecha: {campeonato.fecha}</Typography></Grid>
-                                                <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
-                                                <Grid item xs={12}><Typography>Organizador: {campeonato.organizador}</Typography></Grid>
-                                                <Grid item xs={12}><Typography>Categorias: {campeonato.categorias}</Typography></Grid>
-                                                <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
-                                                <Grid item xs={6} className={classes.btnCampeonato}>
-                                                    <IconButton
-                                                        color="primary"
-                                                        // onClick={}
-                                                        
-                                                    >
-                                                        <AddBoxRounded/>
-                                                    </IconButton>
-                                                </Grid>
-                                                {console.log(campeonato.clubes)}
-                                            </Grid>
-                                            {/* Otras propiedades del campeonato... */}
-                                            {/* <Typography variant="subtitle1">Clubes:</Typography> */}
-                                            {/* <Grid container spacing={2}>
-                                                {campeonato.clubes &&
-                                                    Object.values(campeonato.clubes).map((club) => (
-                                                        <Grid item xs={12} key={Object.keys(club)[0]}>
-                                                            <Card>
-                                                                <CardContent>
-                                                                    <Typography variant="body1">{club[Object.keys(club)[0]].name}</Typography>
-                                                                    
-                                                                </CardContent>
-                                                            </Card>
-                                                        </Grid>
-                                                    ))}
-                                            </Grid> */}
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            ))}
+                        {mostrarCampeonatos(datosCampeonatos)}
                     </Grid>
                 </Grid>
                 <Grid item xs={1}></Grid>
-                <Grid item xs={5} className={classes.rightSide}>
-                    <Typography variant="h6">Mis campeonatos</Typography>
-                    {/* TODO Poner campeonatos en los que estoy inscrito  */}
+                <Grid container xs={5} className={classes.rightSide}>
+                    <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
+                        <Typography variant="h4">Mis campeonatos</Typography>
+                    </Grid>
+                    <Grid item xs={10}  spacing={2}>
+                    {mostrarCampeonatos(campeonatosUsuario)}
+                    </Grid>
                 </Grid>
             </Grid>
         </Container>
