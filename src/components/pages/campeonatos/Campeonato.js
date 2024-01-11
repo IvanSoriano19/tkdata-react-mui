@@ -337,6 +337,9 @@ export function Campeonato() {
                                     label="Direccion"
                                     value={refreshCampeonato.direccion}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -346,6 +349,9 @@ export function Campeonato() {
                                     label="Lugar"
                                     value={refreshCampeonato.lugar}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -355,6 +361,9 @@ export function Campeonato() {
                                     label="Fecha"
                                     value={refreshCampeonato.fecha}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -364,6 +373,9 @@ export function Campeonato() {
                                     label="Organizador"
                                     value={refreshCampeonato.organizador}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -373,6 +385,9 @@ export function Campeonato() {
                                     label="Tipo de campeonato"
                                     value={refreshCampeonato.tipo}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -382,6 +397,9 @@ export function Campeonato() {
                                     label="Categoria"
                                     value={refreshCampeonato.categoria}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                         </Grid>

@@ -268,6 +268,9 @@ export function MiClub() {
                                     label="Nombre del club"
                                     value={datos.name}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -277,6 +280,9 @@ export function MiClub() {
                                     label="Email del club"
                                     value={datos.email}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -286,6 +292,9 @@ export function MiClub() {
                                     label="Telefono del club"
                                     value={datos.telefono}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -295,6 +304,9 @@ export function MiClub() {
                                     label="Tipo de club"
                                     value={datos.tipoClub}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -304,6 +316,9 @@ export function MiClub() {
                                     label="Provincia del club"
                                     value={datos.provincia}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -313,6 +328,9 @@ export function MiClub() {
                                     label="Direccion del club"
                                     value={datos.direccion}
                                     variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
                                 />
                             </Grid>
                         </Grid>
