@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Navbar } from "../../home/Navbar";
+import { useNavigate } from "react-router-dom";
 import {
     Container,
     Grid,
@@ -40,9 +41,17 @@ const useStyles = makeStyles((theme) => ({
         width: "99%",
         marginTop: "100px",
     },
+    container: {
+        display: "flex",
+        alignItems: "flex-start", 
+        justifyContent: "center", 
+        width: "100%",
+        marginTop: "100px",
+        marginBottom:"30px",
+    },
     leftSide: {
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "column",
         justifyContent: "center",
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
@@ -61,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
         margin:"10px",
     },
     card: {
-        marginBottom:"15px",
+        marginBottom:"20px",
     },
     campeonatoNombre:{
         marginBottom:"5px",
@@ -80,6 +89,8 @@ export function Campeonatos() {
     const { user } = useAuth();
     const [datosCampeonatos, setDatosCampeonatos] = useState(null);
     const [clubesUsuario, setClubesUsuario] = useState([]);
+    const [datos, setDatos] = useState()
+    const navigate = useNavigate()
 
     const obtenerDatosCampeonatos = async () => {
         try {
@@ -146,9 +157,26 @@ export function Campeonatos() {
         }
     };
 
+    const getData = async () => {
+        try {
+            const docRef = doc(db, "clubes", user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setDatos(data);
+            } else {
+                setDatos(null);
+            }
+        } catch (error) {
+            console.error(error);
+            setDatos(null);
+        }
+    };
+
     useEffect(() => {
         obtenerDatosCampeonatos();
         obtenerClubesUsuario();
+        getData();
     }, []);
 
 
@@ -162,7 +190,8 @@ export function Campeonatos() {
     const mostrarCampeonatos = (ctos) => {
         return(
             ctos &&
-                Object.values(ctos).map((campeonato) => (
+                Object.values(ctos).map((campeonato) => {                
+                return (
                     <Grid item xs={12} key={campeonato.id}>
                         <Card className={classes.card}>
                             <CardContent>
@@ -170,13 +199,13 @@ export function Campeonatos() {
                                 <Grid container spacing={1}>
                                     <Grid item xs={12}><Typography>Fecha: {campeonato.fecha}</Typography></Grid>
                                     <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
-                                    <Grid item xs={12}><Typography>Organizador: {campeonato.organizador}</Typography></Grid>
+                                    <Grid item xs={12}><Typography>Organizador: {campeonato.organizador === user.uid ? datos.name : campeonato.organizador}</Typography></Grid>
                                     <Grid item xs={12}><Typography>Categoria: {campeonato.categoria}</Typography></Grid>
                                     <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
                                     <Grid item xs={6} className={classes.btnCampeonato}>
                                         <IconButton
                                             color="primary"
-                                            // onClick={}
+                                            onClick={() => navigate("/campeonato", {state:{campeonato}})}
                                             
                                         >
                                             <AddBoxRounded/>
@@ -184,25 +213,10 @@ export function Campeonatos() {
                                     </Grid>
                                     {console.log(campeonato.clubes)}
                                 </Grid>
-                                {/* Otras propiedades del campeonato... */}
-                                {/* <Typography variant="subtitle1">Clubes:</Typography> */}
-                                {/* <Grid container spacing={2}>
-                                    {campeonato.clubes &&
-                                        Object.values(campeonato.clubes).map((club) => (
-                                            <Grid item xs={12} key={Object.keys(club)[0]}>
-                                                <Card>
-                                                    <CardContent>
-                                                        <Typography variant="body1">{club[Object.keys(club)[0]].name}</Typography>
-                                                        
-                                                    </CardContent>
-                                                </Card>
-                                            </Grid>
-                                        ))}
-                                </Grid> */}
                             </CardContent>
                         </Card>
                     </Grid>
-                ))
+                )})
         )
     }
 
@@ -212,7 +226,7 @@ export function Campeonatos() {
             <Navbar />
             <ThemeProvider theme={theme}>
                 <Container maxWidth="md" className={classes.global}>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} className={classes.container}>
                         <Grid container xs={5} className={classes.leftSide}>
                             <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
                                 <Typography variant="h4">Campeonatos</Typography>

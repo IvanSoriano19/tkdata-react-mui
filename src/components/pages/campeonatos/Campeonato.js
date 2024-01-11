@@ -29,18 +29,25 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
-import { Personas } from "./Personas";
-import { EditClub } from "./EditClub";
-import { EditOutlined, DeleteOutlineOutlined, AddCircle } from "@material-ui/icons";
+import { Personas } from "../miClub/Personas";
+import { EditClub } from "../miClub/EditClub";
+import { EditCampeonato } from "./EditCampeonato";
+import {
+    EditOutlined,
+    DeleteOutlineOutlined,
+    AddCircle,
+    ArrowBackRounded,
+} from "@material-ui/icons";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const theme = createTheme({
     palette: {
         primary: {
             main: "#447cc1",
         },
-        secondary:{
-            main:"#e55156"
-        }
+        secondary: {
+            main: "#e55156",
+        },
     },
 });
 
@@ -49,14 +56,21 @@ const useStyles = makeStyles((theme) => ({
         // alignItems: "center",
         width: "90%",
         marginTop: "60px",
+        display: "flex",
         // margin: "auto",
+    },
+    globalArrow: {
+        alignItems: "center",
+        display: "flex-start",
+        width: "80%",
+        marginTop: "80px",
     },
     globalTop: {
         alignItems: "center",
         width: "80%",
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
-        marginTop: "100px",
+        marginTop: "20px",
     },
     global: {
         alignItems: "center",
@@ -66,15 +80,18 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "30px",
         marginBottom: "30px",
     },
+    // btnBack: {
+    //     marginTop: "60px",
+    // },
     miclub: {
         width: "100%",
         textAlign: "center",
     },
     miclubBtn: {
-        justifyContent: "flex-end",
+        justifyContent: "flex",
     },
     miclubBtnEditar: {
-        justifyContent: "flex-end",
+        justifyContent: "flex-start",
     },
     personaBtnCrear: {
         justifyContent: "flex-end",
@@ -90,7 +107,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export function MiClub() {
+export function Campeonato() {
     const classes = useStyles();
     const { user } = useAuth();
     const [datos, setDatos] = useState(null);
@@ -99,6 +116,12 @@ export function MiClub() {
     const [openEdit, setOpenEdit] = useState(false);
     const [personasSeleccionadas, setPersonasSeleccionadas] = useState([]);
     const [modifyButtons, setModifyButtons] = useState("crear");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { campeonato } = location.state;
+    const [refreshCampeonato, setRefreshCampeonato] = useState("")
+    
+    console.log(campeonato);
 
     const handleClick = () => {
         setOpen(true);
@@ -110,6 +133,7 @@ export function MiClub() {
             collection(db, "Personas"),
             where("Club", "==", datos.name)
         );
+        console.log("123 ",datosQuery)
         const datosSnapshot = await getDocs(datosQuery);
         const datosPers = datosSnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -124,47 +148,66 @@ export function MiClub() {
 
     const handleCloseEdit = () => {
         setOpenEdit(false);
-        getData();
+        obtenerCampeonato();
     };
 
-    const getData = async () => {
-        try {
-            const docRef = doc(db, "clubes", user.uid);
+    const obtenerCampeonato = async() => {
+        try{
+            const docRef = doc(db,"Campeonatos", campeonato.id);
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setDatos(data);
-            } else {
-                setDatos(null);
-            }
-        } catch (error) {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    console.log(data);
+                    setRefreshCampeonato(data);
+                } else {
+                    setRefreshCampeonato(null);
+                }
+        }catch (error) {
             console.error(error);
-            setDatos(null);
+            setRefreshCampeonato(null);
         }
-    };
+    }
 
     useEffect(() => {
+        const getData = async () => {
+            try {
+                const docRef = doc(db, "clubes", user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    console.log(data);
+                    setDatos(data);
+                } else {
+                    setDatos(null);
+                }
+            } catch (error) {
+                console.error(error);
+                setDatos(null);
+            }
+        };
         getData();
     }, [user]);
 
+    const obtenerDatos = async () => {
+        const datosQuery = query(
+            collection(db, "Personas"),
+            where("Club", "==", datos.name)
+        );
+        console.log(datos.name);
+        const datosSnapshot = await getDocs(datosQuery);
+        const datosPers = {};
+        datosSnapshot.docs.forEach((doc) => {
+            datosPers[doc.id] = {
+                id: doc.id,
+                ...doc.data(),
+            };
+        });
+        setDatosPersonas(datosPers);
+    };
+
     useEffect(() => {
-        const obtenerDatos = async () => {
-            const datosQuery = query(
-                collection(db, "Personas"),
-                where("Club", "==", datos.name)
-            );
-            console.log(datos.name)
-            const datosSnapshot = await getDocs(datosQuery);
-            const datosPers = {};
-            datosSnapshot.docs.forEach((doc) => {
-                datosPers[doc.id] = {
-                    id: doc.id,
-                    ...doc.data(),
-                };
-            });
-            setDatosPersonas(datosPers);
-        };
         obtenerDatos();
+        obtenerCampeonato();
     }, [datos]);
 
     useEffect(() => {
@@ -239,34 +282,60 @@ export function MiClub() {
         <div>
             <Navbar />
             <ThemeProvider theme={theme} className={classes.root}>
+                {
+                    <Container maxWidth="md" className={classes.globalArrow}>
+                        <Grid container spacing={2}>
+                            <Grid item sm={3}>
+                                <IconButton
+                                    color="primary"
+                                    onClick={() => navigate("/campeonatos")}
+                                    className={classes.btnBack}
+                                >
+                                    <ArrowBackRounded fontSize="large" />
+                                </IconButton>
+                            </Grid>
+                            <Grid item sm={9}>
+                                <Typography variant="h3">
+                                    {refreshCampeonato.nombre}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </Container>
+                }
                 {datos ? (
                     <Container maxWidth="md" className={classes.globalTop}>
                         <Grid container spacing={2}>
-                            <Grid
-                                item
-                                xs={12}
-                                sm={12}
-                                className={classes.miclubBtn}
-                            >
-                                <IconButton
+                            {datos.name === campeonato.organizador ? (
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sm={12}
+                                    className={classes.miclubBtn}
+                                >
+                                    <IconButton
                                         color="primary"
                                         onClick={handleClickEdit}
                                         className={classes.miclubBtnEditar}
                                     >
-                                        <EditOutlined fontSize="large"/>
+                                        <EditOutlined fontSize="large" />
                                     </IconButton>
-                                <EditClub
-                                    open={openEdit}
-                                    handleClose={handleCloseEdit}
-                                    club={datos}
-                                />
-                            </Grid>
+                                    <EditCampeonato
+                                        open={openEdit}
+                                        handleClose={handleCloseEdit}
+                                        campeonato={campeonato}
+                                    />
+                                </Grid>
+                            ) : (
+                                ""
+                            )}
+                            {console.log("refreshCampeonato ",refreshCampeonato)}
+                            {console.log("campeonato ",campeonato)}
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
                                     disabled
-                                    label="Nombre del club"
-                                    value={datos.name}
+                                    label="Direccion"
+                                    value={refreshCampeonato.direccion}
                                     variant="outlined"
                                 />
                             </Grid>
@@ -274,8 +343,8 @@ export function MiClub() {
                                 <TextField
                                     className={classes.miclub}
                                     disabled
-                                    label="Email del club"
-                                    value={datos.email}
+                                    label="Lugar"
+                                    value={refreshCampeonato.lugar}
                                     variant="outlined"
                                 />
                             </Grid>
@@ -283,8 +352,8 @@ export function MiClub() {
                                 <TextField
                                     className={classes.miclub}
                                     disabled
-                                    label="Telefono del club"
-                                    value={datos.telefono}
+                                    label="Fecha"
+                                    value={refreshCampeonato.fecha}
                                     variant="outlined"
                                 />
                             </Grid>
@@ -292,8 +361,8 @@ export function MiClub() {
                                 <TextField
                                     className={classes.miclub}
                                     disabled
-                                    label="Tipo de club"
-                                    value={datos.tipoClub}
+                                    label="Organizador"
+                                    value={refreshCampeonato.organizador}
                                     variant="outlined"
                                 />
                             </Grid>
@@ -301,8 +370,8 @@ export function MiClub() {
                                 <TextField
                                     className={classes.miclub}
                                     disabled
-                                    label="Provincia del club"
-                                    value={datos.provincia}
+                                    label="Tipo de campeonato"
+                                    value={refreshCampeonato.tipo}
                                     variant="outlined"
                                 />
                             </Grid>
@@ -310,8 +379,8 @@ export function MiClub() {
                                 <TextField
                                     className={classes.miclub}
                                     disabled
-                                    label="Direccion del club"
-                                    value={datos.direccion}
+                                    label="Categoria"
+                                    value={refreshCampeonato.categoria}
                                     variant="outlined"
                                 />
                             </Grid>
@@ -330,7 +399,7 @@ export function MiClub() {
                                     onClick={handleClick}
                                     className={classes.personaBtnCrear}
                                 >
-                                    <AddCircle fontSize="large"/>
+                                    <AddCircle fontSize="large" />
                                 </IconButton>
                             )}
                             {modifyButtons === "editar" && (
@@ -340,7 +409,7 @@ export function MiClub() {
                                         onClick={handleEditar}
                                         className={classes.personaBtnEditar}
                                     >
-                                        <EditOutlined fontSize="large"/>
+                                        <EditOutlined fontSize="large" />
                                     </IconButton>
                                     <IconButton
                                         variant="contained"
@@ -348,7 +417,7 @@ export function MiClub() {
                                         onClick={handleEliminar}
                                         className={classes.personaBtnEliminar}
                                     >
-                                        <DeleteOutlineOutlined fontSize="large"/>
+                                        <DeleteOutlineOutlined fontSize="large" />
                                     </IconButton>
                                 </div>
                             )}
@@ -359,7 +428,7 @@ export function MiClub() {
                                     onClick={handleEliminar}
                                     className={classes.personaBtnEliminar}
                                 >
-                                    <DeleteOutlineOutlined fontSize="large"/>
+                                    <DeleteOutlineOutlined fontSize="large" />
                                 </IconButton>
                             )}
                             <Personas

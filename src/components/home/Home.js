@@ -57,6 +57,16 @@ const useStyles = makeStyles((theme) => ({
     campeonatoNombre:{
         marginBottom:"5px"
     },
+    card: {
+        marginBottom:"20px",
+    },
+    container: {
+        display: "flex",
+        alignItems: "flex-start", 
+        justifyContent: "space-between", 
+        width: "100%",
+        marginTop: "100px",
+    },
 }));
 
 export function Home() {
@@ -183,7 +193,7 @@ export function Home() {
             ctos &&
                 Object.values(ctos).map((campeonato) => (
                     <Grid item xs={12} key={campeonato.id}>
-                        <Card>
+                        <Card className={classes.card}> 
                             <CardContent>
                                 <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
                                 <Grid container spacing={1}>
@@ -192,15 +202,6 @@ export function Home() {
                                     <Grid item xs={12}><Typography>Organizador: {campeonato.organizador}</Typography></Grid>
                                     <Grid item xs={12}><Typography>Categoria: {campeonato.categoria}</Typography></Grid>
                                     <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
-                                    {/* <Grid item xs={6} className={classes.btnCampeonato}>
-                                        <IconButton
-                                            color="primary"
-                                            // onClick={}
-                                            
-                                        >
-                                            <AddBoxRounded/>
-                                        </IconButton>
-                                    </Grid> */}
                                 </Grid>
                             </CardContent>
                         </Card>
@@ -223,7 +224,7 @@ export function Home() {
             <Navbar />
 
             <Container maxWidth="md" className={classes.global}>
-                <Grid container spacing={2}>
+                <Grid container spacing={2} className={classes.container}>
                     <Grid item xs={6} className={classes.leftSide}>
                         <Grid item xs={12} sm={12}>
                             <TableContainer>

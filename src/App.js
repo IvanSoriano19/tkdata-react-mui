@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/authContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MiClub } from "./components/pages/miClub/MiClub";
 import { Campeonatos } from "./components/pages/campeonatos/Campeonatos";
+import { Campeonato } from "./components/pages/campeonatos/Campeonato";
 import { CrearCampeonato } from "./components/pages/campeonatos/CrearCampeonato";
 
 function App() {
@@ -47,14 +48,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                {/* <Route
+                <Route
                     path="/campeonato"
                     element={
                         <ProtectedRoute>
                             <Campeonato />
                         </ProtectedRoute>
                     }
-                /> */}
+                />
             </Routes>
         </AuthProvider>
     );
