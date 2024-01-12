@@ -7,17 +7,17 @@ import {
     Grid,
     TextField,
     makeStyles,
-    MenuItem,
-    Select,
-    InputLabel,
-    FormControl,
     RadioGroup,
     FormControlLabel,
+    FormControl,
+    Select,
+    InputLabel,
+    MenuItem,
     Radio,
 } from "@material-ui/core";
-import React, { setState, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { db } from "../../../firebase-config";
-import { addDoc, collection } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     form: {
         width: "100%",
         marginTop: theme.spacing(3),
-    }, 
+    },
     submit: {
         margin: theme.spacing(3, 0, 2),
         backgroundColor: "#447cc1",
@@ -41,18 +41,11 @@ const useStyles = makeStyles((theme) => ({
             backgroundColor: "#2765B0",
         },
     },
-    formControl: {
-        margin: theme.spacing(1),
-        minWidth: 200,
-    },
-    selectEmpty: {
-        marginTop: theme.spacing(2),
-    },
 }));
 
-export function Personas(props) {
+export function EditPersona(props) {
     const classes = useStyles();
-    const { open, handleClose, club } = props;
+    const { open, handleClose, persona } = props;
     const cadeteM = [
         "-33 Kg",
         "-37 Kg",
@@ -126,37 +119,102 @@ export function Personas(props) {
     const [pesoSeleccionado, setPesoSeleccionado] = useState("");
     const [tipoSeleccionado, setTipoSeleccionado] = useState("");
     const [contenidoFiltrado, setContenidoFiltrado] = useState([]);
-    const [state, setState] = useState({});
-    const forceUpdate = () => setState({});
-    const [persona, setPersona] = useState({
-        Nombre: "",
-        Apellido: "",
-        Club: club,
-        Edad: "",
-        Categoria: "",
-        Peso: "",
-        Tipo: "",
-        Sexo: "",
+    const [datos, setDatos] = useState("");
+
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                console.log(persona);
+                const docRef = doc(db, "Personas", persona[0]);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    console.log("docsnap 132", docSnap);
+                    setDatos(data);
+
+                    setPesoSeleccionado(data.Peso || "");
+                    if (data.Categoria === "Cadete") {
+                        if (data.Sexo === "Masculino") {
+                            setContenidoFiltrado(cadeteM);
+                        } else {
+                            setContenidoFiltrado(cadeteF);
+                        }
+                    } else if (data.Categoria === "Junior") {
+                        if (data.Sexo === "Masculino") {
+                            setContenidoFiltrado(juniorM);
+                        } else {
+                            setContenidoFiltrado(juniorF);
+                        }
+                    } else if (data.Categoria === "Senior") {
+                        if (data.Sexo === "Masculino") {
+                            setContenidoFiltrado(seniorM);
+                        } else {
+                            setContenidoFiltrado(seniorF);
+                        }
+                    }
+                } else {
+                    setDatos(null);
+                }
+            } catch (error) {
+                console.error(error);
+                setDatos(null);
+            }
+        };
+        getData();
+    }, []);
+
+    console.log("1", datos);
+
+    useEffect(() => {
+        if (datos) {
+            setEditPersona({
+                Nombre: datos.Nombre || "",
+                Apellido: datos.Apellido || "",
+                Club: datos.Club || "clb",
+                Edad: datos.Edad || "",
+                Categoria: datos.Categoria || "",
+                Peso: datos.Peso || "",
+                Tipo: datos.Tipo || "",
+                Sexo: datos.Sexo || "",
+            });
+        }
+    }, [datos]);
+
+    const [editPersona, setEditPersona] = useState({
+        Nombre: datos.Nombre || "",
+        Apellido: datos.Apellido || "",
+        Club: datos.Club || "clb",
+        Edad: datos.Edad || "",
+        Categoria: datos.Categoria || "",
+        Peso: datos.Peso || "",
+        Tipo: datos.Tipo || "",
+        Sexo: datos.Sexo || "",
     });
+    console.log("2", datos.Nombre);
+    console.log("3", editPersona);
+
     const handleChange = (event, campo) => {
         const { value } = event.target;
-        setPersona({ ...persona, [campo]: value });
+        console.log("handle change => ", editPersona);
+        setEditPersona((prevPersona) => ({ ...prevPersona, [campo]: value }));
     };
     useEffect(() => {
-        if (persona.Categoria === "Cadete") {
-            if (persona.Sexo === "Masculino") {
+        console.log("categoria ",editPersona.Categoria)
+        console.log("sexo ",editPersona.Sexo)
+        if (editPersona.Categoria === "Cadete") {
+            if (editPersona.Sexo === "Masculino") {
                 setContenidoFiltrado(cadeteM);
             } else {
                 setContenidoFiltrado(cadeteF);
             }
-        } else if (persona.Categoria === "Junior") {
-            if (persona.Sexo === "Masculino") {
+        } else if (editPersona.Categoria === "Junior") {
+            if (editPersona.Sexo === "Masculino") {
                 setContenidoFiltrado(juniorM);
             } else {
                 setContenidoFiltrado(juniorF);
             }
-        } else if (persona.Categoria === "Senior") {
-            if (persona.Sexo === "Masculino") {
+        } else if (editPersona.Categoria === "Senior") {
+            if (editPersona.Sexo === "Masculino") {
                 setContenidoFiltrado(seniorM);
             } else {
                 setContenidoFiltrado(seniorF);
@@ -180,32 +238,27 @@ export function Personas(props) {
         const peso = event.target.value;
         setPesoSeleccionado(peso);
     };
+
     const handleSubmit = async (event) => {
-        event.preventDefault();
         try {
-            await addDoc(collection(db, "Personas"), {
-                ...persona,
-                Peso: pesoSeleccionado,
+            event.preventDefault();
+
+            console.log("submit", persona[0]);
+            const docRef = doc(db, "Personas", persona[0]);
+            console.log("docref", docRef);
+            await updateDoc(docRef, {
+                ...editPersona,
             });
-            setPersona({
-                Nombre: "",
-                Apellido: "",
-                Club: club,
-                Edad: "",
-                Categoria: "",
-                Peso: "",
-                Tipo: "",
-                Sexo: "",
-            });
-            setTimeout(() => forceUpdate(), 100);
             handleClose();
         } catch (error) {
             console.error("Error al guardar en la base de datos:", error);
         }
     };
+
+    console.log("4", editPersona);
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Añadir alumno o entrenador</DialogTitle>
+            <DialogTitle>Editar alumno o entrenador</DialogTitle>
             <DialogContent>
                 <form className={classes.form}>
                     <Grid container spacing={2}>
@@ -217,17 +270,18 @@ export function Personas(props) {
                                 fullWidth
                                 id="Nombre"
                                 label="Nombre"
+                                value={editPersona.Nombre}
                                 onChange={(e) => handleChange(e, "Nombre")}
-                                autoFocus
                             />
+                            {console.log("5", editPersona)}
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 variant="outlined"
-                                required
                                 fullWidth
                                 id="Apellido"
                                 label="Apellido"
+                                value={editPersona.Apellido}
                                 onChange={(e) => handleChange(e, "Apellido")}
                             />
                         </Grid>
@@ -236,6 +290,7 @@ export function Personas(props) {
                                 required
                                 fullWidth
                                 row
+                                value={editPersona.Sexo}
                                 id="Sexo"
                                 onChange={(e) => {
                                     handleChange(e, "Sexo");
@@ -261,6 +316,7 @@ export function Personas(props) {
                                 fullWidth
                                 id="Edad"
                                 label="Edad"
+                                value={editPersona.Edad}
                                 onChange={(e) => handleChange(e, "Edad")}
                             />
                         </Grid>
@@ -274,7 +330,7 @@ export function Personas(props) {
                                 <InputLabel>Tipo</InputLabel>
                                 <Select
                                     id="Tipo"
-                                    value={tipoSeleccionado}
+                                    value={editPersona.Tipo}
                                     onChange={(e) => {
                                         handleChange(e, "Tipo");
                                         handleChangeTipo(e);
@@ -282,8 +338,12 @@ export function Personas(props) {
                                     required
                                     label="Tipo"
                                 >
-                                    <MenuItem value={"Competidor"}>Competidor</MenuItem>
-                                    <MenuItem value={"Entrenador"}>Entrenador</MenuItem>
+                                    <MenuItem value={"Competidor"}>
+                                        Competidor
+                                    </MenuItem>
+                                    <MenuItem value={"Entrenador"}>
+                                        Entrenador
+                                    </MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -303,6 +363,7 @@ export function Personas(props) {
                                     }}
                                     required
                                     label="Categoria"
+                                    value={editPersona.Categoria}
                                 >
                                     <MenuItem value={"Cadete"}>Cadete</MenuItem>
                                     <MenuItem value={"Junior"}>Junior</MenuItem>
@@ -320,13 +381,14 @@ export function Personas(props) {
                             >
                                 <InputLabel>Peso</InputLabel>
                                 <Select
-                                    value={pesoSeleccionado}
                                     label="Continido Filtrado"
+                                    value={editPersona.Peso}
                                     onChange={(e) => {
                                         handleChangePeso(e);
                                         handleChange(e, "Peso");
                                     }}
                                 >
+                                    {console.log(contenidoFiltrado)}
                                     {contenidoFiltrado.map((op, index) => (
                                         <MenuItem key={index} value={op}>
                                             {op}

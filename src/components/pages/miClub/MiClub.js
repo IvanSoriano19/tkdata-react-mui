@@ -31,16 +31,22 @@ import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
 import { Personas } from "./Personas";
 import { EditClub } from "./EditClub";
-import { EditOutlined, DeleteOutlineOutlined, AddCircle } from "@material-ui/icons";
+import { EditPersona } from "./EditPersona";
+import {
+    EditOutlined,
+    DeleteOutlineOutlined,
+    AddCircle,
+} from "@material-ui/icons";
+
 
 const theme = createTheme({
     palette: {
         primary: {
             main: "#447cc1",
         },
-        secondary:{
-            main:"#e55156"
-        }
+        secondary: {
+            main: "#e55156",
+        },
     },
 });
 
@@ -97,6 +103,7 @@ export function MiClub() {
     const [datosPersonas, setDatosPersonas] = useState([]);
     const [open, setOpen] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
+    const [openEditPersona, setOpenEditPersona] = useState(false);
     const [personasSeleccionadas, setPersonasSeleccionadas] = useState([]);
     const [modifyButtons, setModifyButtons] = useState("crear");
 
@@ -122,8 +129,17 @@ export function MiClub() {
         setOpenEdit(true);
     };
 
+    const handleClickEditPersona = () => {
+        setOpenEditPersona(true);
+    };
+
     const handleCloseEdit = () => {
         setOpenEdit(false);
+        getData();
+    };
+
+    const handleCloseEditPersona = () => {
+        setOpenEditPersona(false);
         getData();
     };
 
@@ -153,7 +169,7 @@ export function MiClub() {
                 collection(db, "Personas"),
                 where("Club", "==", datos.name)
             );
-            console.log(datos.name)
+            console.log(datos.name);
             const datosSnapshot = await getDocs(datosQuery);
             const datosPers = {};
             datosSnapshot.docs.forEach((doc) => {
@@ -188,7 +204,6 @@ export function MiClub() {
         } else {
             setPersonasSeleccionadas([...personasSeleccionadas, id]);
         }
-
         console.log(
             "Estado de personasSeleccionadas: handleSelectPersona===",
             personasSeleccionadas
@@ -209,7 +224,9 @@ export function MiClub() {
         personasSeleccionadas.forEach((index) => {
             console.log("index=> ", index);
             const personaId = datosPersonas[index].id;
+            console.log("persona id",personaId)
             const personaRef = doc(collection(db, "Personas"), personaId);
+            console.log("persona ref",personaRef)
             batch.delete(personaRef);
         });
 
@@ -232,8 +249,6 @@ export function MiClub() {
             console.error("Error al eliminar personas:", error);
         }
     };
-    //TODO
-    const handleEditar = () => {};
 
     return (
         <div>
@@ -249,16 +264,16 @@ export function MiClub() {
                                 className={classes.miclubBtn}
                             >
                                 <IconButton
-                                        color="primary"
-                                        onClick={handleClickEdit}
-                                        className={classes.miclubBtnEditar}
-                                    >
-                                        <EditOutlined fontSize="large"/>
-                                    </IconButton>
+                                    color="primary"
+                                    onClick={handleClickEdit}
+                                    className={classes.miclubBtnEditar}
+                                >
+                                    <EditOutlined fontSize="large" />
+                                </IconButton>
                                 <EditClub
                                     open={openEdit}
                                     handleClose={handleCloseEdit}
-                                    club={datos}
+                                    club={datos}                                 
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -348,25 +363,31 @@ export function MiClub() {
                                     onClick={handleClick}
                                     className={classes.personaBtnCrear}
                                 >
-                                    <AddCircle fontSize="large"/>
+                                    <AddCircle fontSize="large" />
                                 </IconButton>
                             )}
                             {modifyButtons === "editar" && (
                                 <div>
                                     <IconButton
                                         color="default"
-                                        onClick={handleEditar}
+                                        onClick={handleClickEditPersona}
                                         className={classes.personaBtnEditar}
                                     >
-                                        <EditOutlined fontSize="large"/>
+                                        <EditOutlined fontSize="large" />
                                     </IconButton>
+                                    <EditPersona
+                                        open={openEditPersona}
+                                        handleClose={handleCloseEditPersona}    
+                                        persona={personasSeleccionadas}
+                                    />
+                                    {console.log(personasSeleccionadas)}
                                     <IconButton
                                         variant="contained"
                                         color="secondary"
                                         onClick={handleEliminar}
                                         className={classes.personaBtnEliminar}
                                     >
-                                        <DeleteOutlineOutlined fontSize="large"/>
+                                        <DeleteOutlineOutlined fontSize="large" />
                                     </IconButton>
                                 </div>
                             )}
@@ -377,7 +398,7 @@ export function MiClub() {
                                     onClick={handleEliminar}
                                     className={classes.personaBtnEliminar}
                                 >
-                                    <DeleteOutlineOutlined fontSize="large"/>
+                                    <DeleteOutlineOutlined fontSize="large" />
                                 </IconButton>
                             )}
                             <Personas
