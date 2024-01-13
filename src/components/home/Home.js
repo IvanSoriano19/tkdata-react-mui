@@ -14,7 +14,7 @@ import {
     Typography,
     Card,
     CardContent,
-    IconButton
+    IconButton,
 } from "@material-ui/core";
 import {
     collection,
@@ -25,6 +25,7 @@ import {
     where,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import { HourglassEmptyOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
     global: {
@@ -48,25 +49,35 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
     },
-    campeonatos:{
-        display:"flex",
+    campeonatos: {
+        display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        margin:"10px"
+        margin: "10px",
     },
-    campeonatoNombre:{
-        marginBottom:"5px"
+    campeonatoNombre: {
+        marginBottom: "5px",
     },
     card: {
-        marginBottom:"20px",
+        marginBottom: "20px",
     },
     container: {
         display: "flex",
-        alignItems: "flex-start", 
-        justifyContent: "space-between", 
+        alignItems: "flex-start",
+        justifyContent: "space-between",
         width: "100%",
         marginTop: "100px",
-        marginBottom:"30px",
+        marginBottom: "30px",
+    },
+    loading: {
+        alignItems: "center",
+        margin: "auto",
+    },
+    loadingContainer: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh", // Ajusta esto según tus necesidades
     },
 }));
 
@@ -133,11 +144,11 @@ export function Home() {
                                 where("name", "==", nombre)
                             );
                             const clubSnapshot = await getDocs(clubQuery);
-                        if (!clubSnapshot.empty) {
-                            const clubData = clubSnapshot.docs[0].data();
-                            return { [clubData.id]: clubData.name };
-                        }
-                        return null;
+                            if (!clubSnapshot.empty) {
+                                const clubData = clubSnapshot.docs[0].data();
+                                return { [clubData.id]: clubData.name };
+                            }
+                            return null;
                         } catch (error) {
                             console.error(
                                 "Error al obtener el documento del club:",
@@ -183,44 +194,78 @@ export function Home() {
     };
 
     const campeonatosUsuario = datosCampeonatos
-    ? Object.values(datosCampeonatos).filter((campeonato) => {
-            const clubesCampeonato =  Object.values(campeonato.clubes || {});
-            return clubesCampeonato.some((club) => club === clubesUsuario);
-        })
-    : [];
+        ? Object.values(datosCampeonatos).filter((campeonato) => {
+              const clubesCampeonato = Object.values(campeonato.clubes || {});
+              return clubesCampeonato.some((club) => club === clubesUsuario);
+          })
+        : [];
 
     const mostrarCampeonatos = (ctos) => {
-        return(
+        return (
             ctos &&
-                Object.values(ctos).map((campeonato) => (
-                    <Grid item xs={12} key={campeonato.id}>
-                        <Card className={classes.card}> 
-                            <CardContent>
-                                <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
-                                <Grid container spacing={1}>
-                                    <Grid item xs={12}><Typography>Fecha: {campeonato.fecha}</Typography></Grid>
-                                    <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
-                                    <Grid item xs={12}><Typography>Organizador: {campeonato.organizador}</Typography></Grid>
-                                    <Grid item xs={12}><Typography>Categoria: {campeonato.categoria}</Typography></Grid>
-                                    <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
+            Object.values(ctos).map((campeonato) => (
+                <Grid item xs={12} key={campeonato.id}>
+                    <Card className={classes.card}>
+                        <CardContent>
+                            <Typography
+                                className={classes.campeonatoNombre}
+                                spacing={2}
+                                variant="h5"
+                            >
+                                {campeonato.nombre}
+                            </Typography>
+                            <Grid container spacing={1}>
+                                <Grid item xs={12}>
+                                    <Typography>
+                                        Fecha: {campeonato.fecha}
+                                    </Typography>
                                 </Grid>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))
-        )
-    }
+                                <Grid item xs={12}>
+                                    <Typography>
+                                        Lugar: {campeonato.lugar}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography>
+                                        Organizador: {campeonato.organizador}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography>
+                                        Categoria: {campeonato.categoria}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Typography>
+                                        Clubes inscritos:{" "}
+                                        {campeonato.clubes
+                                            ? Object.values(campeonato.clubes).length
+                                            : 0}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            ))
+        );
+    };
 
     useEffect(() => {
         obtenerDatosCampeonatos();
         obtenerClubesUsuario();
     }, []);
 
-
-    if (loading) return <h1>LOADING...</h1>;
+    if (loading)
+        return (
+            <div className={classes.loadingContainer}>
+                <IconButton className={classes.loading}>
+                    <HourglassEmptyOutlined fontSize="large" />
+                </IconButton>
+            </div>
+        );
 
     return (
-        // TODO: dividir el home
         <div>
             <Navbar />
 
@@ -236,7 +281,9 @@ export function Home() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell align="left">
-                                                <Typography variant="h6">Nombre</Typography>
+                                                <Typography variant="h6">
+                                                    Nombre
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="left">
                                                 <Typography variant="h6">
@@ -244,7 +291,9 @@ export function Home() {
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <Typography variant="h6">Edad</Typography>
+                                                <Typography variant="h6">
+                                                    Edad
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="left">
                                                 <Typography variant="h6">
@@ -285,11 +334,19 @@ export function Home() {
                     </Grid>
                     <Grid item xs={1}></Grid>
                     <Grid container xs={5} className={classes.rightSide}>
-                        <Grid item className={classes.campeonatos} xs={12} sm={12} spacing={2}>
-                            <Typography variant="h4">Mis campeonatos</Typography>
+                        <Grid
+                            item
+                            className={classes.campeonatos}
+                            xs={12}
+                            sm={12}
+                            spacing={2}
+                        >
+                            <Typography variant="h4">
+                                Mis campeonatos
+                            </Typography>
                         </Grid>
-                        <Grid item xs={10}  spacing={2}>
-                        {mostrarCampeonatos(campeonatosUsuario)}
+                        <Grid item xs={10} spacing={2}>
+                            {mostrarCampeonatos(campeonatosUsuario)}
                         </Grid>
                     </Grid>
                 </Grid>

@@ -94,6 +94,16 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: "flex-end",
         marginTop: "10px",
     },
+    loading: {
+        alignItems: "center",
+        margin: "auto",
+    },
+    loadingContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh', // Ajusta esto según tus necesidades
+    },
 }));
 
 export function MiClub() {
@@ -365,7 +375,11 @@ export function MiClub() {
                         </Grid>
                     </Container>
                 ) : (
-                    <div>Loading</div>
+                    <div className={classes.loadingContainer}>
+                <IconButton className={classes.loading}>
+                    <HourglassEmptyOutlined fontSize="large" />
+                </IconButton>
+            </div>
                 )}
                 {datos ? (
                     <Container maxWidth="md" className={classes.global}>

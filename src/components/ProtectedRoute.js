@@ -17,7 +17,6 @@ const theme = createTheme({
 const useStyles = makeStyles((theme) => ({
     loading: {
         alignItems: "center",
-        
         margin: "auto",
     },
     loadingContainer: {

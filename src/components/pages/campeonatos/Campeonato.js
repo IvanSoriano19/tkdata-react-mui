@@ -37,6 +37,7 @@ import {
     DeleteOutlineOutlined,
     AddCircle,
     ArrowBackRounded,
+    HourglassEmptyOutlined
 } from "@material-ui/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -104,6 +105,16 @@ const useStyles = makeStyles((theme) => ({
     personaBtnEliminar: {
         justifyContent: "flex-end",
         marginTop: "10px",
+    },
+    loading: {
+        alignItems: "center",
+        margin: "auto",
+    },
+    loadingContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh', // Ajusta esto según tus necesidades
     },
 }));
 
@@ -405,7 +416,11 @@ export function Campeonato() {
                         </Grid>
                     </Container>
                 ) : (
-                    <div>Loading</div>
+                    <div className={classes.loadingContainer}>
+                <IconButton className={classes.loading}>
+                    <HourglassEmptyOutlined fontSize="large" />
+                </IconButton>
+            </div>
                 )}
                 {datos ? (
                     <Container maxWidth="md" className={classes.global}>
@@ -568,7 +583,11 @@ export function Campeonato() {
                         </Grid>
                     </Container>
                 ) : (
-                    <div>Loading</div>
+                    <div className={classes.loadingContainer}>
+                <IconButton className={classes.loading}>
+                    <HourglassEmptyOutlined fontSize="large" />
+                </IconButton>
+            </div>
                 )}
             </ThemeProvider>
         </div>
