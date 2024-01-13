@@ -1,14 +1,47 @@
 import { useAuth } from "../context/authContext";
 import { Navigate } from "react-router-dom";
+import { IconButton, makeStyles, createTheme } from "@material-ui/core";
+import { HourglassEmptyOutlined } from "@material-ui/icons";
 
-export function ProtectedRoute({children}) {
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: "#447cc1",
+        },
+        secondary: {
+            main: "#e55156",
+        },
+    },
+});
 
-    const {user, loading} = useAuth()
+const useStyles = makeStyles((theme) => ({
+    loading: {
+        alignItems: "center",
+        
+        margin: "auto",
+    },
+    loadingContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh', // Ajusta esto según tus necesidades
+    },
+}));
 
-    if (loading) return <h1>LOADING</h1>
+export function ProtectedRoute({ children }) {
+    const classes = useStyles();
+    const { user, loading } = useAuth();
 
-    if (!user) return <Navigate to='/login'/>
+    if (loading)
+        return (
+            <div className={classes.loadingContainer}>
+                <IconButton className={classes.loading}>
+                    <HourglassEmptyOutlined fontSize="large" />
+                </IconButton>
+            </div>
+        );
 
-    return <>{children}</>
- 
+    if (!user) return <Navigate to="/login" />;
+
+    return <>{children}</>;
 }
