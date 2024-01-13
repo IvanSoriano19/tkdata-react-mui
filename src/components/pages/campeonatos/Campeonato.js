@@ -16,6 +16,8 @@ import {
     Typography,
     Checkbox,
     IconButton,
+    Card,
+    CardContent
 } from "@material-ui/core";
 import {
     collection,
@@ -37,7 +39,8 @@ import {
     DeleteOutlineOutlined,
     AddCircle,
     ArrowBackRounded,
-    HourglassEmptyOutlined
+    HourglassEmptyOutlined,
+    AddBoxRounded
 } from "@material-ui/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -131,6 +134,8 @@ export function Campeonato() {
     const location = useLocation();
     const { campeonato } = location.state;
     const [refreshCampeonato, setRefreshCampeonato] = useState("")
+    const [datosCampeonatos, setDatosCampeonatos] = useState(null);
+
     
     console.log(campeonato);
 
@@ -286,9 +291,45 @@ export function Campeonato() {
             console.error("Error al eliminar personas:", error);
         }
     };
-    //TODO
-    const handleEditar = () => {};
+    const mostrarCampeonatos = (ctos) => {
+        return(
+            ctos &&
+                Object.values(ctos).map((campeonato) => {                
+                return (
+                    <Grid item xs={12} key={campeonato.id}>
+                        <Card className={classes.card}>
+                            <CardContent>
+                                <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
+                                <Grid container spacing={1}>
+                                    <Grid item xs={12}><Typography>Fecha: {campeonato.fecha}</Typography></Grid>
+                                    <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
+                                    <Grid item xs={12}><Typography>Organizador: {campeonato.organizador === user.uid ? datos.name : campeonato.organizador}</Typography></Grid>
+                                    <Grid item xs={12}><Typography>Categoria: {campeonato.categoria}</Typography></Grid>
+                                    <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
+                                    <Grid item xs={6} className={classes.btnCampeonato}>
+                                        <IconButton
+                                            color="primary"
+                                            onClick={() => navigate("/campeonato", {state:{campeonato}})}
+                                            
+                                        >
+                                            <AddBoxRounded/>
+                                        </IconButton>
+                                    </Grid>
+                                    {console.log(campeonato.clubes)}
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                )})
+        )
+    }
 
+    const campeonatosUsuario = datosCampeonatos
+    ? Object.values(datosCampeonatos).filter((campeonato) => {
+            const clubesCampeonato =  Object.values(campeonato.clubes || {});
+            return clubesCampeonato.some((club) => club === clubesUsuario);
+        })
+    : [];
     return (
         <div>
             <Navbar />
@@ -339,8 +380,6 @@ export function Campeonato() {
                             ) : (
                                 ""
                             )}
-                            {console.log("refreshCampeonato ",refreshCampeonato)}
-                            {console.log("campeonato ",campeonato)}
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
@@ -423,165 +462,25 @@ export function Campeonato() {
             </div>
                 )}
                 {datos ? (
-                    <Container maxWidth="md" className={classes.global}>
-                        <Grid item xs={12} sm={12}>
-                            {modifyButtons === "crear" && (
-                                <IconButton
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleClick}
-                                    className={classes.personaBtnCrear}
-                                >
-                                    <AddCircle fontSize="large" />
-                                </IconButton>
-                            )}
-                            {modifyButtons === "editar" && (
-                                <div>
-                                    <IconButton
-                                        color="default"
-                                        onClick={handleEditar}
-                                        className={classes.personaBtnEditar}
-                                    >
-                                        <EditOutlined fontSize="large" />
-                                    </IconButton>
-                                    <IconButton
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={handleEliminar}
-                                        className={classes.personaBtnEliminar}
-                                    >
-                                        <DeleteOutlineOutlined fontSize="large" />
-                                    </IconButton>
-                                </div>
-                            )}
-                            {modifyButtons === "eliminar" && (
-                                <IconButton
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={handleEliminar}
-                                    className={classes.personaBtnEliminar}
-                                >
-                                    <DeleteOutlineOutlined fontSize="large" />
-                                </IconButton>
-                            )}
-                            <Personas
-                                open={open}
-                                handleClose={handleClose}
-                                club={datos.name}
-                            />
+                    <Grid container spacing={2} className={classes.container}>
+                    <Grid container xs={5} className={classes.leftSide}>
+                        <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
+                            <Typography variant="h4">Campeonatos</Typography>
                         </Grid>
-                        <Grid item xs={12} sm={12}>
-                            <TableContainer>
-                                <Table
-                                    className={classes.table}
-                                    aria-label="simple table"
-                                >
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell padding="checkbox"></TableCell>
-                                            <TableCell align="left">
-                                                <Typography variant="h6">
-                                                    Nombre
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <Typography variant="h6">
-                                                    Apellido
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <Typography variant="h6">
-                                                    Edad
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <Typography variant="h6">
-                                                    Categoria
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <Typography variant="h6">
-                                                    Tipo
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <Typography variant="h6">
-                                                    Peso
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <Typography variant="h6">
-                                                    Sexo
-                                                </Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {Object.keys(datosPersonas).map(
-                                            (personaId) => {
-                                                const row =
-                                                    datosPersonas[personaId];
-                                                return (
-                                                    <TableRow
-                                                        key={personaId}
-                                                        role="checkbox"
-                                                    >
-                                                        <TableCell padding="checkbox">
-                                                            <Checkbox
-                                                                checked={personasSeleccionadas.includes(
-                                                                    personaId
-                                                                )}
-                                                                onChange={() =>
-                                                                    handleSelectPersona(
-                                                                        personaId
-                                                                    )
-                                                                }
-                                                            />
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <Typography>
-                                                                {row.Nombre}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <Typography>
-                                                                {row.Apellido}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <Typography>
-                                                                {row.Edad}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <Typography>
-                                                                {row.Categoria}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <Typography>
-                                                                {row.Tipo}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <Typography>
-                                                                {row.Peso}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <Typography>
-                                                                {row.Sexo}
-                                                            </Typography>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                );
-                                            }
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                        <Grid item xs={10}  spacing={2}>
+                            {mostrarCampeonatos(datosCampeonatos)}
                         </Grid>
-                    </Container>
+                    </Grid>
+                    <Grid item xs={1}></Grid>
+                    <Grid container xs={5} className={classes.rightSide}>
+                        <Grid className={classes.campeonatos} xs={12} sm={12} spacing={2}>
+                            <Typography variant="h4">Mis campeonatos</Typography>
+                        </Grid>
+                        <Grid item xs={10}  spacing={2}>
+                        {mostrarCampeonatos(campeonatosUsuario)}
+                        </Grid>
+                    </Grid>
+                </Grid>
                 ) : (
                     <div className={classes.loadingContainer}>
                 <IconButton className={classes.loading}>
