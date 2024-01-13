@@ -119,6 +119,7 @@ export function EditPersona(props) {
     const [pesoSeleccionado, setPesoSeleccionado] = useState("");
     const [tipoSeleccionado, setTipoSeleccionado] = useState("");
     const [contenidoFiltrado, setContenidoFiltrado] = useState([]);
+    const [tipoEntrenador, setTipoEntrenador] = useState(false);
     const [datos, setDatos] = useState("");
 
     useEffect(() => {
@@ -131,7 +132,6 @@ export function EditPersona(props) {
                     const data = docSnap.data();
                     console.log("docsnap 132", docSnap);
                     setDatos(data);
-
                     setPesoSeleccionado(data.Peso || "");
                     if (data.Categoria === "Cadete") {
                         if (data.Sexo === "Masculino") {
@@ -196,11 +196,23 @@ export function EditPersona(props) {
     const handleChange = (event, campo) => {
         const { value } = event.target;
         console.log("handle change => ", editPersona);
+        // if ((campo = "Tipo")&&(value === "Entrenador")) {
+        //     setTipoEntrenador(true);
+        //     setCategoriaSeleccionada("");
+        //     setPesoSeleccionado("");
+        //     editPersona.Categoria = "";
+        //     editPersona.Peso = "";
+        //     console.log("hyola", editPersona)
+        // } else {
+        //     setTipoEntrenador(false);
+        // }
+        console.log("hyola", editPersona)
         setEditPersona((prevPersona) => ({ ...prevPersona, [campo]: value }));
+
     };
     useEffect(() => {
-        console.log("categoria ",editPersona.Categoria)
-        console.log("sexo ",editPersona.Sexo)
+        console.log("categoria ", editPersona.Categoria);
+        console.log("sexo ", editPersona.Sexo);
         if (editPersona.Categoria === "Cadete") {
             if (editPersona.Sexo === "Masculino") {
                 setContenidoFiltrado(cadeteM);
@@ -230,9 +242,28 @@ export function EditPersona(props) {
         const sexo = event.target.value;
         setSexoSeleccionado(sexo);
     };
+
+    useEffect(() => {
+        setTipoEntrenador(editPersona.Tipo === "Entrenador");
+        console.log("tipoEntrenador => ",tipoEntrenador)
+    }, [editPersona.Tipo]);
     const handleChangeTipo = (event) => {
         const tipo = event.target.value;
         setTipoSeleccionado(tipo);
+        if (tipo === "Entrenador") {
+            setTipoEntrenador(true);
+            setCategoriaSeleccionada("");
+            setPesoSeleccionado("");
+            // editPersona.Categoria = "";
+            // editPersona.Peso = "";
+            setEditPersona((prevPersona) => ({
+                ...prevPersona,
+                Categoria: "",
+                Peso: "",
+            }));
+        } else {
+            setTipoEntrenador(false);
+        }
     };
     const handleChangePeso = (event) => {
         const peso = event.target.value;
@@ -347,56 +378,137 @@ export function EditPersona(props) {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <FormControl
-                                variant="outlined"
-                                fullWidth
-                                label="Categoria"
-                                id="Categoria"
-                            >
-                                <InputLabel>Categoria</InputLabel>
-                                <Select
-                                    id="Categoria"
-                                    onChange={(e) => {
-                                        handleChange(e, "Categoria");
-                                        handleChangeCategoria(e);
-                                    }}
-                                    required
-                                    label="Categoria"
-                                    value={editPersona.Categoria}
-                                >
-                                    <MenuItem value={"Cadete"}>Cadete</MenuItem>
-                                    <MenuItem value={"Junior"}>Junior</MenuItem>
-                                    <MenuItem value={"Senior"}>Senior</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <FormControl
-                                variant="outlined"
-                                required
-                                fullWidth
-                                id="Peso"
-                                label="Peso"
-                            >
-                                <InputLabel>Peso</InputLabel>
-                                <Select
-                                    label="Continido Filtrado"
-                                    value={editPersona.Peso}
-                                    onChange={(e) => {
-                                        handleChangePeso(e);
-                                        handleChange(e, "Peso");
-                                    }}
-                                >
-                                    {console.log(contenidoFiltrado)}
-                                    {contenidoFiltrado.map((op, index) => (
-                                        <MenuItem key={index} value={op}>
-                                            {op}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
+                        {!tipoEntrenador && (
+                            <>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl
+                                        variant="outlined"
+                                        fullWidth
+                                        label="Categoria"
+                                        id="Categoria"
+                                    >
+                                        <InputLabel>Categoria</InputLabel>
+                                        <Select
+                                            id="Categoria"
+                                            onChange={(e) => {
+                                                handleChange(e, "Categoria");
+                                                handleChangeCategoria(e);
+                                            }}
+                                            required
+                                            label="Categoria"
+                                            value={editPersona.Categoria}
+                                        >
+                                            <MenuItem value={"Cadete"}>
+                                                Cadete
+                                            </MenuItem>
+                                            <MenuItem value={"Junior"}>
+                                                Junior
+                                            </MenuItem>
+                                            <MenuItem value={"Senior"}>
+                                                Senior
+                                            </MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl
+                                        variant="outlined"
+                                        required
+                                        fullWidth
+                                        id="Peso"
+                                        label="Peso"
+                                    >
+                                        <InputLabel>Peso</InputLabel>
+                                        <Select
+                                            label="Continido Filtrado"
+                                            value={editPersona.Peso}
+                                            onChange={(e) => {
+                                                handleChangePeso(e);
+                                                handleChange(e, "Peso");
+                                            }}
+                                        >
+                                            {console.log(contenidoFiltrado)}
+                                            {contenidoFiltrado.map(
+                                                (op, index) => (
+                                                    <MenuItem
+                                                        key={index}
+                                                        value={op}
+                                                    >
+                                                        {op}
+                                                    </MenuItem>
+                                                )
+                                            )}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </>
+                        )}
+                        {tipoEntrenador && (
+                            <>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl
+                                        variant="outlined"
+                                        fullWidth
+                                        label="Categoria"
+                                        id="Categoria"
+                                        disabled
+                                    >
+                                        <InputLabel>Categoria</InputLabel>
+                                        <Select
+                                            id="Categoria"
+                                            onChange={(e) => {
+                                                handleChange(e, "Categoria");
+                                                handleChangeCategoria(e);
+                                            }}
+                                            required
+                                            label="Categoria"
+                                            value=""
+                                        >
+                                            <MenuItem value={"Cadete"}>
+                                                Cadete
+                                            </MenuItem>
+                                            <MenuItem value={"Junior"}>
+                                                Junior
+                                            </MenuItem>
+                                            <MenuItem value={"Senior"}>
+                                                Senior
+                                            </MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl
+                                        variant="outlined"
+                                        required
+                                        fullWidth
+                                        id="Peso"
+                                        label="Peso"
+                                        disabled
+                                    >
+                                        <InputLabel>Peso</InputLabel>
+                                        <Select
+                                            label=""
+                                            value=""
+                                            onChange={(e) => {
+                                                handleChangePeso(e);
+                                                handleChange(e, "Peso");
+                                            }}
+                                        >
+                                            {contenidoFiltrado.map(
+                                                (op, index) => (
+                                                    <MenuItem
+                                                        key={index}
+                                                        value={op}
+                                                    >
+                                                        {op}
+                                                    </MenuItem>
+                                                )
+                                            )}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </>
+                        )}
                     </Grid>
                     <Button
                         type="submit"

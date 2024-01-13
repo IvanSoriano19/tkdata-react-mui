@@ -125,6 +125,7 @@ export function Personas(props) {
     const [sexoSeleccionado, setSexoSeleccionado] = useState("");
     const [pesoSeleccionado, setPesoSeleccionado] = useState("");
     const [tipoSeleccionado, setTipoSeleccionado] = useState("");
+    const [tipoEntrenador, setTipoEntrenador] = useState(false)
     const [contenidoFiltrado, setContenidoFiltrado] = useState([]);
     const [state, setState] = useState({});
     const forceUpdate = () => setState({});
@@ -141,6 +142,7 @@ export function Personas(props) {
     const handleChange = (event, campo) => {
         const { value } = event.target;
         setPersona({ ...persona, [campo]: value });
+        console.log("handlechange",persona)
     };
     useEffect(() => {
         if (persona.Categoria === "Cadete") {
@@ -175,6 +177,15 @@ export function Personas(props) {
     const handleChangeTipo = (event) => {
         const tipo = event.target.value;
         setTipoSeleccionado(tipo);
+        if(tipo === "Entrenador"){
+            setTipoEntrenador(true);
+            setCategoriaSeleccionada("")
+            setPesoSeleccionado("")
+            persona.Categoria = ""
+            persona.Peso = ""
+        }else{
+            setTipoEntrenador(false);
+        }
     };
     const handleChangePeso = (event) => {
         const peso = event.target.value;
@@ -287,7 +298,9 @@ export function Personas(props) {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        {!tipoEntrenador && (
+                            <>
+                            <Grid item xs={12} sm={6}>
                             <FormControl
                                 variant="outlined"
                                 fullWidth
@@ -321,7 +334,7 @@ export function Personas(props) {
                                 <InputLabel>Peso</InputLabel>
                                 <Select
                                     value={pesoSeleccionado}
-                                    label="Continido Filtrado"
+                                    label=""
                                     onChange={(e) => {
                                         handleChangePeso(e);
                                         handleChange(e, "Peso");
@@ -335,6 +348,63 @@ export function Personas(props) {
                                 </Select>
                             </FormControl>
                         </Grid>
+                        </>
+                        )}
+                        {tipoEntrenador && (
+                            <>
+                            <Grid item xs={12} sm={6}>
+                            <FormControl
+                                variant="outlined"
+                                fullWidth
+                                label="Categoria"
+                                id="Categoria"
+                                disabled
+                            >
+                                <InputLabel>Categoria</InputLabel>
+                                <Select
+                                    id="Categoria"
+                                    onChange={(e) => {
+                                        handleChange(e, "Categoria");
+                                        handleChangeCategoria(e);
+                                    }}
+                                    required
+                                    label="Categoria"
+                                >
+                                    <MenuItem value={"Cadete"}>Cadete</MenuItem>
+                                    <MenuItem value={"Junior"}>Junior</MenuItem>
+                                    <MenuItem value={"Senior"}>Senior</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <FormControl
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="Peso"
+                                label="Peso"
+                                disabled
+                            >
+                                <InputLabel>Peso</InputLabel>
+                                <Select
+                                    value={pesoSeleccionado}
+                                    label=""
+                                    onChange={(e) => {
+                                        handleChangePeso(e);
+                                        handleChange(e, "Peso");
+                                    }}
+                                >
+                                    {contenidoFiltrado.map((op, index) => (
+                                        <MenuItem key={index} value={op}>
+                                            {op}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        </>
+                        )}
+                        
                     </Grid>
                     <Button
                         type="submit"

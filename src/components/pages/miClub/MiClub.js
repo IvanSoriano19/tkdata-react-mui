@@ -36,8 +36,8 @@ import {
     EditOutlined,
     DeleteOutlineOutlined,
     AddCircle,
+    HourglassEmptyOutlined
 } from "@material-ui/icons";
-
 
 const theme = createTheme({
     palette: {
@@ -106,7 +106,7 @@ export function MiClub() {
     const [openEditPersona, setOpenEditPersona] = useState(false);
     const [personasSeleccionadas, setPersonasSeleccionadas] = useState([]);
     const [modifyButtons, setModifyButtons] = useState("crear");
-
+    const [tempPersonasSeleccionadas, setTempPersonasSeleccionadas] = useState([])
     const handleClick = () => {
         setOpen(true);
     };
@@ -123,6 +123,8 @@ export function MiClub() {
             ...doc.data(),
         }));
         setDatosPersonas(datosPers);
+        setPersonasSeleccionadas([]);
+        window.location.reload();
     };
 
     const handleClickEdit = () => {
@@ -136,11 +138,14 @@ export function MiClub() {
     const handleCloseEdit = () => {
         setOpenEdit(false);
         getData();
+        setPersonasSeleccionadas([]);
+        window.location.reload();
     };
 
     const handleCloseEditPersona = () => {
         setOpenEditPersona(false);
         getData();
+        setPersonasSeleccionadas([]);
     };
 
     const getData = async () => {
@@ -196,7 +201,6 @@ export function MiClub() {
 
     const handleSelectPersona = (id) => {
         const isSelected = personasSeleccionadas.includes(id);
-
         if (isSelected) {
             setPersonasSeleccionadas(
                 personasSeleccionadas.filter((selectedId) => selectedId !== id)
@@ -224,14 +228,21 @@ export function MiClub() {
         personasSeleccionadas.forEach((index) => {
             console.log("index=> ", index);
             const personaId = datosPersonas[index].id;
-            console.log("persona id",personaId)
+            console.log("persona id", personaId);
             const personaRef = doc(collection(db, "Personas"), personaId);
-            console.log("persona ref",personaRef)
+            console.log("persona ref", personaRef);
             batch.delete(personaRef);
         });
 
         try {
             await batch.commit();
+
+            setTempPersonasSeleccionadas([]);
+
+            console.log(
+                    "Después de resetear personasSeleccionadas",
+                    tempPersonasSeleccionadas
+                );
 
             const datosQuery = query(
                 collection(db, "Personas"),
@@ -244,11 +255,14 @@ export function MiClub() {
             }));
             setDatosPersonas(datosPers);
             setModifyButtons("crear");
-            setPersonasSeleccionadas([]);
+            window.location.reload();
         } catch (error) {
             console.error("Error al eliminar personas:", error);
         }
     };
+    useEffect(() => {
+        setPersonasSeleccionadas(tempPersonasSeleccionadas);
+    }, [tempPersonasSeleccionadas]);
 
     return (
         <div>
@@ -273,7 +287,7 @@ export function MiClub() {
                                 <EditClub
                                     open={openEdit}
                                     handleClose={handleCloseEdit}
-                                    club={datos}                                 
+                                    club={datos}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -377,7 +391,7 @@ export function MiClub() {
                                     </IconButton>
                                     <EditPersona
                                         open={openEditPersona}
-                                        handleClose={handleCloseEditPersona}    
+                                        handleClose={handleCloseEditPersona}
                                         persona={personasSeleccionadas}
                                     />
                                     {console.log(personasSeleccionadas)}
@@ -433,7 +447,7 @@ export function MiClub() {
                                             </TableCell>
                                             <TableCell align="left">
                                                 <Typography variant="h6">
-                                                    Categoria
+                                                    Sexo
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="left">
@@ -443,12 +457,12 @@ export function MiClub() {
                                             </TableCell>
                                             <TableCell align="left">
                                                 <Typography variant="h6">
-                                                    Peso
+                                                    Categoria
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="left">
                                                 <Typography variant="h6">
-                                                    Sexo
+                                                    Peso
                                                 </Typography>
                                             </TableCell>
                                         </TableRow>
@@ -492,7 +506,7 @@ export function MiClub() {
                                                         </TableCell>
                                                         <TableCell align="left">
                                                             <Typography>
-                                                                {row.Categoria}
+                                                                {row.Sexo}
                                                             </Typography>
                                                         </TableCell>
                                                         <TableCell align="left">
@@ -502,12 +516,12 @@ export function MiClub() {
                                                         </TableCell>
                                                         <TableCell align="left">
                                                             <Typography>
-                                                                {row.Peso}
+                                                                {row.Categoria}
                                                             </Typography>
                                                         </TableCell>
                                                         <TableCell align="left">
                                                             <Typography>
-                                                                {row.Sexo}
+                                                                {row.Peso}
                                                             </Typography>
                                                         </TableCell>
                                                     </TableRow>
@@ -520,7 +534,9 @@ export function MiClub() {
                         </Grid>
                     </Container>
                 ) : (
-                    <div>Loading</div>
+                    <IconButton className={classes.loading}>
+                        <HourglassEmptyOutlined/>
+                    </IconButton>
                 )}
             </ThemeProvider>
         </div>
