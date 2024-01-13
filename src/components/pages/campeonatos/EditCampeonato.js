@@ -91,7 +91,7 @@ export function EditCampeonato(props) {
 
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Editar club</DialogTitle>
+            <DialogTitle>Editar Campeonato</DialogTitle>
             <DialogContent>
                 <form className={classes.form} onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
