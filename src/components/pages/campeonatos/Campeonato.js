@@ -8,10 +8,10 @@ import {
     ThemeProvider,
     createTheme,
     Typography,
-    Checkbox,
     IconButton,
     Card,
     CardContent,
+    Button,
 } from "@material-ui/core";
 import {
     collection,
@@ -22,6 +22,7 @@ import {
     where,
     getFirestore,
     writeBatch,
+    updateDoc,
 } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
@@ -149,7 +150,7 @@ export function Campeonato() {
     const handleClickDelete = () => {
         setDeleteOpen(true);
     };
-    
+
     const handleCloseDelete = () => {
         setDeleteOpen(false);
         obtenerCampeonato();
@@ -169,6 +170,24 @@ export function Campeonato() {
         }));
         setDatosPersonas(datosPers);
     };
+
+    const handleAddClub = async (nuevoClub) =>{
+        try {
+            const campeonatoRef = doc(db, "Campeonatos", campeonato.id); 
+    
+            const docSnap = await getDoc(campeonatoRef);
+            const campeonatoData = docSnap.data();
+            const clubesActuales = campeonatoData.clubes || [];
+    
+            clubesActuales.push(nuevoClub);
+    
+            await updateDoc(campeonatoRef, { clubes: clubesActuales });
+            // window.location.reload();
+            navigate("/campeonatos")
+        }catch (error) {
+
+        }
+    }
 
     const obtenerCampeonato = async () => {
         try {
@@ -192,7 +211,7 @@ export function Campeonato() {
             collection(db, "Personas"),
             where("Club", "==", datos.name)
         );
-        console.log(datos.name);
+        console.log(datos);
         const datosSnapshot = await getDocs(datosQuery);
         const datosPers = {};
         datosSnapshot.docs.forEach((doc) => {
@@ -203,7 +222,7 @@ export function Campeonato() {
         });
         setDatosPersonas(datosPers);
     };
-    
+
     useEffect(() => {
         const getData = async () => {
             try {
@@ -223,6 +242,7 @@ export function Campeonato() {
         };
         getData();
     }, [user]);
+    console.log(datos);
 
     useEffect(() => {
         obtenerDatos();
@@ -393,19 +413,10 @@ export function Campeonato() {
                                     <ArrowBackRounded fontSize="large" />
                                 </IconButton>
                             </Grid>
-                            <Grid item sm={8}>
+                            <Grid item sm={9}>
                                 <Typography variant="h3">
                                     {refreshCampeonato.nombre}
                                 </Typography>
-                            </Grid>
-                            <Grid item sm={1}>
-                                <IconButton
-                                    color="primary"
-                                    onClick={() => navigate("/campeonatos")}
-                                    className={classes.btnBack}
-                                >
-                                    <AddBox fontSize="large" />
-                                </IconButton>
                             </Grid>
                         </Grid>
                     </Container>
@@ -521,9 +532,31 @@ export function Campeonato() {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <Typography>estoy inscrito?</Typography>
+                            <Grid item xs={12} sm={9}>
+                                <Typography variant="h6">
+                                    {campeonato.clubes &&
+                                    datos.id in campeonato.clubes
+                                        ? `${datos.name} SI está inscrito en el campeonato.`
+                                        : `${datos.name} NO está inscrito en el campeonato.`}
+                                </Typography>
                             </Grid>
+                            {campeonato.clubes &&
+                            datos.id in campeonato.clubes ? (
+                                ""
+                            ) : (
+                                <Grid item xs={12} sm={3}>
+                                    <Button
+                                        type="submit"
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        className={classes.submit}
+                                        onClick={() => handleAddClub(datos.name)}
+                                    >
+                                        Inscribirme
+                                    </Button>
+                                </Grid>
+                            )}
                         </Grid>
                     </Container>
                 ) : (
