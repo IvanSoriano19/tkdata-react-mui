@@ -210,8 +210,8 @@ export function Campeonatos() {
                                         >
                                             <AddBoxRounded/>
                                         </IconButton>
+                                        {console.log("campeonato ", campeonato)}
                                     </Grid>
-                                    {console.log(campeonato.clubes)}
                                 </Grid>
                             </CardContent>
                         </Card>

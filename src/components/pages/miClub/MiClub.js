@@ -72,6 +72,9 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "30px",
         marginBottom: "30px",
     },
+    table:{
+        marginTop:"-15px"
+    },
     miclub: {
         width: "100%",
         textAlign: "center",

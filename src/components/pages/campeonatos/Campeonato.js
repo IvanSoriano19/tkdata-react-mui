@@ -7,17 +7,11 @@ import {
     TextField,
     ThemeProvider,
     createTheme,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     Typography,
     Checkbox,
     IconButton,
     Card,
-    CardContent
+    CardContent,
 } from "@material-ui/core";
 import {
     collection,
@@ -32,15 +26,15 @@ import {
 import { db } from "../../../firebase-config";
 import { useAuth } from "../../../context/authContext";
 import { Personas } from "../miClub/Personas";
-import { EditClub } from "../miClub/EditClub";
 import { EditCampeonato } from "./EditCampeonato";
+import { ConfirmDelete } from "./ConfirmDelete";
 import {
     EditOutlined,
     DeleteOutlineOutlined,
-    AddCircle,
     ArrowBackRounded,
     HourglassEmptyOutlined,
-    AddBoxRounded
+    AddBoxRounded,
+    AddBox,
 } from "@material-ui/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -107,17 +101,17 @@ const useStyles = makeStyles((theme) => ({
     },
     personaBtnEliminar: {
         justifyContent: "flex-end",
-        marginTop: "10px",
+        // marginTop: "10px",
     },
     loading: {
         alignItems: "center",
         margin: "auto",
     },
     loadingContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh', // Ajusta esto según tus necesidades
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh", // Ajusta esto según tus necesidades
     },
 }));
 
@@ -128,34 +122,19 @@ export function Campeonato() {
     const [datosPersonas, setDatosPersonas] = useState([]);
     const [open, setOpen] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
     const [personasSeleccionadas, setPersonasSeleccionadas] = useState([]);
     const [modifyButtons, setModifyButtons] = useState("crear");
     const navigate = useNavigate();
     const location = useLocation();
     const { campeonato } = location.state;
-    const [refreshCampeonato, setRefreshCampeonato] = useState("")
+    const [refreshCampeonato, setRefreshCampeonato] = useState("");
     const [datosCampeonatos, setDatosCampeonatos] = useState(null);
 
-    
     console.log(campeonato);
 
     const handleClick = () => {
         setOpen(true);
-    };
-
-    const handleClose = async () => {
-        setOpen(false);
-        const datosQuery = query(
-            collection(db, "Personas"),
-            where("Club", "==", datos.name)
-        );
-        console.log("123 ",datosQuery)
-        const datosSnapshot = await getDocs(datosQuery);
-        const datosPers = datosSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-        setDatosPersonas(datosPers);
     };
 
     const handleClickEdit = () => {
@@ -167,23 +146,64 @@ export function Campeonato() {
         obtenerCampeonato();
     };
 
-    const obtenerCampeonato = async() => {
-        try{
-            const docRef = doc(db,"Campeonatos", campeonato.id);
+    const handleClickDelete = () => {
+        setDeleteOpen(true);
+    };
+    
+    const handleCloseDelete = () => {
+        setDeleteOpen(false);
+        obtenerCampeonato();
+    };
+
+    const handleClose = async () => {
+        setOpen(false);
+        const datosQuery = query(
+            collection(db, "Personas"),
+            where("Club", "==", datos.name)
+        );
+        console.log("123 ", datosQuery);
+        const datosSnapshot = await getDocs(datosQuery);
+        const datosPers = datosSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        setDatosPersonas(datosPers);
+    };
+
+    const obtenerCampeonato = async () => {
+        try {
+            const docRef = doc(db, "Campeonatos", campeonato.id);
             const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    console.log(data);
-                    setRefreshCampeonato(data);
-                } else {
-                    setRefreshCampeonato(null);
-                }
-        }catch (error) {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                console.log(data);
+                setRefreshCampeonato(data);
+            } else {
+                setRefreshCampeonato(null);
+            }
+        } catch (error) {
             console.error(error);
             setRefreshCampeonato(null);
         }
-    }
+    };
 
+    const obtenerDatos = async () => {
+        const datosQuery = query(
+            collection(db, "Personas"),
+            where("Club", "==", datos.name)
+        );
+        console.log(datos.name);
+        const datosSnapshot = await getDocs(datosQuery);
+        const datosPers = {};
+        datosSnapshot.docs.forEach((doc) => {
+            datosPers[doc.id] = {
+                id: doc.id,
+                ...doc.data(),
+            };
+        });
+        setDatosPersonas(datosPers);
+    };
+    
     useEffect(() => {
         const getData = async () => {
             try {
@@ -203,23 +223,6 @@ export function Campeonato() {
         };
         getData();
     }, [user]);
-
-    const obtenerDatos = async () => {
-        const datosQuery = query(
-            collection(db, "Personas"),
-            where("Club", "==", datos.name)
-        );
-        console.log(datos.name);
-        const datosSnapshot = await getDocs(datosQuery);
-        const datosPers = {};
-        datosSnapshot.docs.forEach((doc) => {
-            datosPers[doc.id] = {
-                id: doc.id,
-                ...doc.data(),
-            };
-        });
-        setDatosPersonas(datosPers);
-    };
 
     useEffect(() => {
         obtenerDatos();
@@ -291,28 +294,70 @@ export function Campeonato() {
             console.error("Error al eliminar personas:", error);
         }
     };
+
     const mostrarCampeonatos = (ctos) => {
-        return(
+        return (
             ctos &&
-                Object.values(ctos).map((campeonato) => {                
+            Object.values(ctos).map((campeonato) => {
                 return (
                     <Grid item xs={12} key={campeonato.id}>
                         <Card className={classes.card}>
                             <CardContent>
-                                <Typography className={classes.campeonatoNombre} spacing={2} variant="h5">{campeonato.nombre}</Typography>
+                                <Typography
+                                    className={classes.campeonatoNombre}
+                                    spacing={2}
+                                    variant="h5"
+                                >
+                                    {campeonato.nombre}
+                                </Typography>
                                 <Grid container spacing={1}>
-                                    <Grid item xs={12}><Typography>Fecha: {campeonato.fecha}</Typography></Grid>
-                                    <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
-                                    <Grid item xs={12}><Typography>Organizador: {campeonato.organizador === user.uid ? datos.name : campeonato.organizador}</Typography></Grid>
-                                    <Grid item xs={12}><Typography>Categoria: {campeonato.categoria}</Typography></Grid>
-                                    <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
-                                    <Grid item xs={6} className={classes.btnCampeonato}>
+                                    <Grid item xs={12}>
+                                        <Typography>
+                                            Fecha: {campeonato.fecha}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography>
+                                            Lugar: {campeonato.lugar}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography>
+                                            Organizador:{" "}
+                                            {campeonato.organizador === user.uid
+                                                ? datos.name
+                                                : campeonato.organizador}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography>
+                                            Categoria: {campeonato.categoria}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Typography>
+                                            Clubes inscritos:{" "}
+                                            {campeonato.clubes
+                                                ? Object.values(
+                                                      campeonato.clubes
+                                                  ).length
+                                                : 0}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        item
+                                        xs={6}
+                                        className={classes.btnCampeonato}
+                                    >
                                         <IconButton
                                             color="primary"
-                                            onClick={() => navigate("/campeonato", {state:{campeonato}})}
-                                            
+                                            onClick={() =>
+                                                navigate("/campeonato", {
+                                                    state: { campeonato },
+                                                })
+                                            }
                                         >
-                                            <AddBoxRounded/>
+                                            <AddBoxRounded />
                                         </IconButton>
                                     </Grid>
                                     {console.log(campeonato.clubes)}
@@ -320,16 +365,18 @@ export function Campeonato() {
                             </CardContent>
                         </Card>
                     </Grid>
-                )})
-        )
-    }
+                );
+            })
+        );
+    };
 
-    const campeonatosUsuario = datosCampeonatos
-    ? Object.values(datosCampeonatos).filter((campeonato) => {
-            const clubesCampeonato =  Object.values(campeonato.clubes || {});
-            return clubesCampeonato.some((club) => club === clubesUsuario);
-        })
-    : [];
+    // const campeonatosUsuario = datosCampeonatos
+    //     ? Object.values(datosCampeonatos).filter((campeonato) => {
+    //             const clubesCampeonato = Object.values(campeonato.clubes || {});
+    //             return clubesCampeonato.some((club) => club === clubesUsuario);
+    //         })
+    //     : [];
+
     return (
         <div>
             <Navbar />
@@ -346,10 +393,19 @@ export function Campeonato() {
                                     <ArrowBackRounded fontSize="large" />
                                 </IconButton>
                             </Grid>
-                            <Grid item sm={9}>
+                            <Grid item sm={8}>
                                 <Typography variant="h3">
                                     {refreshCampeonato.nombre}
                                 </Typography>
+                            </Grid>
+                            <Grid item sm={1}>
+                                <IconButton
+                                    color="primary"
+                                    onClick={() => navigate("/campeonatos")}
+                                    className={classes.btnBack}
+                                >
+                                    <AddBox fontSize="large" />
+                                </IconButton>
                             </Grid>
                         </Grid>
                     </Container>
@@ -375,6 +431,19 @@ export function Campeonato() {
                                         open={openEdit}
                                         handleClose={handleCloseEdit}
                                         campeonato={campeonato}
+                                    />
+                                    <IconButton
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={handleClickDelete}
+                                        className={classes.personaBtnEliminar}
+                                    >
+                                        <DeleteOutlineOutlined fontSize="large" />
+                                    </IconButton>
+                                    <ConfirmDelete
+                                        open={deleteOpen}
+                                        handleClose={handleCloseDelete}
+                                        idCampeonato={campeonato.id}
                                     />
                                 </Grid>
                             ) : (
@@ -452,41 +521,59 @@ export function Campeonato() {
                                     }}
                                 />
                             </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Typography>estoy inscrito?</Typography>
+                            </Grid>
                         </Grid>
                     </Container>
                 ) : (
                     <div className={classes.loadingContainer}>
-                <IconButton className={classes.loading}>
-                    <HourglassEmptyOutlined fontSize="large" />
-                </IconButton>
-            </div>
+                        <IconButton className={classes.loading}>
+                            <HourglassEmptyOutlined fontSize="large" />
+                        </IconButton>
+                    </div>
                 )}
                 {datos ? (
                     <Grid container spacing={2} className={classes.container}>
-                    <Grid container xs={5} className={classes.leftSide}>
-                        <Grid className={classes.campeonatos} item xs={12} sm={12} spacing={2}>
-                            <Typography variant="h4">Campeonatos</Typography>
+                        <Grid container xs={5} className={classes.leftSide}>
+                            <Grid
+                                className={classes.campeonatos}
+                                item
+                                xs={12}
+                                sm={12}
+                                spacing={2}
+                            >
+                                <Typography variant="h4">
+                                    Campeonatos
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={10} spacing={2}>
+                                {/* {mostrarCampeonatos(datosCampeonatos)} */}
+                            </Grid>
                         </Grid>
-                        <Grid item xs={10}  spacing={2}>
-                            {mostrarCampeonatos(datosCampeonatos)}
+                        <Grid item xs={1}></Grid>
+                        <Grid container xs={5} className={classes.rightSide}>
+                            <Grid
+                                className={classes.campeonatos}
+                                xs={12}
+                                sm={12}
+                                spacing={2}
+                            >
+                                <Typography variant="h4">
+                                    Mis campeonatos
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={10} spacing={2}>
+                                {/* {mostrarCampeonatos(campeonatosUsuario)} */}
+                            </Grid>
                         </Grid>
                     </Grid>
-                    <Grid item xs={1}></Grid>
-                    <Grid container xs={5} className={classes.rightSide}>
-                        <Grid className={classes.campeonatos} xs={12} sm={12} spacing={2}>
-                            <Typography variant="h4">Mis campeonatos</Typography>
-                        </Grid>
-                        <Grid item xs={10}  spacing={2}>
-                        {mostrarCampeonatos(campeonatosUsuario)}
-                        </Grid>
-                    </Grid>
-                </Grid>
                 ) : (
                     <div className={classes.loadingContainer}>
-                <IconButton className={classes.loading}>
-                    <HourglassEmptyOutlined fontSize="large" />
-                </IconButton>
-            </div>
+                        <IconButton className={classes.loading}>
+                            <HourglassEmptyOutlined fontSize="large" />
+                        </IconButton>
+                    </div>
                 )}
             </ThemeProvider>
         </div>

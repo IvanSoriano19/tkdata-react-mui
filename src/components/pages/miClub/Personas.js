@@ -127,8 +127,6 @@ export function Personas(props) {
     const [tipoSeleccionado, setTipoSeleccionado] = useState("");
     const [tipoEntrenador, setTipoEntrenador] = useState(false)
     const [contenidoFiltrado, setContenidoFiltrado] = useState([]);
-    const [state, setState] = useState({});
-    const forceUpdate = () => setState({});
     const [persona, setPersona] = useState({
         Nombre: "",
         Apellido: "",
@@ -208,7 +206,6 @@ export function Personas(props) {
                 Tipo: "",
                 Sexo: "",
             });
-            setTimeout(() => forceUpdate(), 100);
             handleClose();
         } catch (error) {
             console.error("Error al guardar en la base de datos:", error);
