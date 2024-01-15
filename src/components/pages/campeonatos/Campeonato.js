@@ -612,13 +612,6 @@ export function Campeonato() {
         setPesoSeleccionado("");
     };
 
-    // const campeonatosUsuario = datosCampeonatos
-    //     ? Object.values(datosCampeonatos).filter((campeonato) => {
-    //             const clubesCampeonato = Object.values(campeonato.clubes || {});
-    //             return clubesCampeonato.some((club) => club === clubesUsuario);
-    //         })
-    //     : [];
-
     const mostrarDatosCampeonato = () => {
         return (
             <>
