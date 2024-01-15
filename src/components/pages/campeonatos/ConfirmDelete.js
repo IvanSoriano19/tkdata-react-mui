@@ -34,13 +34,6 @@ const theme = createTheme({
 });
 
 const useStyles = makeStyles((theme) => ({
-    // root: {
-    //     // alignItems: "center",
-    //     width: "90%",
-    //     marginTop: "60px",
-    //     display: "flex",
-    //     // margin: "auto",
-    // },
     form: {
         width: "100%",
         marginTop: theme.spacing(3),

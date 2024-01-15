@@ -85,6 +85,9 @@ const useStyles = makeStyles((theme) => ({
     miclubBtnEditar: {
         justifyContent: "flex-end",
     },
+    miclubInfo:{
+        marginTop:"7px"
+    },
     personaBtnCrear: {
         justifyContent: "flex-end",
         marginTop: "10px",
@@ -287,7 +290,7 @@ export function MiClub() {
                             <Grid
                                 item
                                 xs={12}
-                                sm={12}
+                                sm={4}
                                 className={classes.miclubBtn}
                             >
                                 <IconButton
@@ -303,6 +306,13 @@ export function MiClub() {
                                     club={datos}
                                 />
                             </Grid>
+                            <Grid item
+                                xs={12}
+                                sm={8}
+                                className={classes.miclubInfo}>
+                                <Typography variant="h4">Información del club</Typography>
+                            </Grid>
+                            
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
