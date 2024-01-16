@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navbar } from "../../home/Navbar";
+import { Navbar } from "../../../home/Navbar";
 import {
     Container,
     makeStyles,
@@ -35,11 +35,11 @@ import {
     writeBatch,
     updateDoc,
 } from "firebase/firestore";
-import { db } from "../../../firebase-config";
-import { useAuth } from "../../../context/authContext";
-import { Personas } from "../miClub/Personas";
-import { EditCampeonato } from "./EditCampeonato";
-import { ConfirmDelete } from "./ConfirmDelete";
+import { db } from "../../../../firebase-config";
+import { useAuth } from "../../../../context/authContext";
+import { Personas } from "../../miClub/Personas";
+import { EditCampeonato } from "../campeonato/EditCampeonato";
+import { ConfirmDelete } from "../campeonato/ConfirmDelete";
 import {
     EditOutlined,
     DeleteOutlineOutlined,
@@ -50,6 +50,7 @@ import {
 } from "@material-ui/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AgregarCompetidores } from "./AgregarCompetidores";
+import { useChat } from "../foro/useChat";
 
 const theme = createTheme({
     palette: {
@@ -195,6 +196,17 @@ export function Campeonato() {
     const [pesoSeleccionado, setPesoSeleccionado] = useState("");
     const [personasFiltradas, setPersonasFiltradas] = useState([]);
     const [modifyButtons, setModifyButtons] = useState("add");
+    const [message, setMessage] = useState("");
+    // const { loading, messages, error } = useChat();
+
+    // const onClickEnviarMensaje = (e) =>{
+    //     e.preventDefault();
+
+    //     doc(db,'messages').add({
+    //         timestamp: Date.now(),
+    //         message
+    //     });
+    // }
 
     const handleClickSnackbar = () => {
         setOpenSnackbar(true);
@@ -620,6 +632,10 @@ export function Campeonato() {
     //     : [];
 
     const mostrarDatosCampeonato = () => {
+        console.log(datos.name);
+        console.log(campeonato.clubes);
+        if (!datos.name) {
+        }
         return (
             <>
                 <Grid item xs={12} sm={6}>
@@ -721,6 +737,44 @@ export function Campeonato() {
         );
     };
 
+    const condicionInscrito = () => {
+        return (
+            <>
+                {modifyButtons === "add" && (
+                    <Grid item xs={2}>
+                        <IconButton
+                            variant="contained"
+                            color="primary"
+                            onClick={handleClickCompetidores}
+                            className={classes.addPersona}
+                        >
+                            <AddCircle fontSize="large" />
+                        </IconButton>
+                        <AgregarCompetidores
+                            open={agregarCompetidoresOpen}
+                            handleClose={handleCloseCompetidores}
+                            idCampeonato={campeonato.id}
+                        />
+                    </Grid>
+                )}
+                {modifyButtons === "eliminar" && (
+                    <Grid item xs={2}>
+                        <IconButton
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => {
+                                handleEliminar();
+                            }}
+                            className={classes.personaBtnEliminar}
+                        >
+                            <DeleteOutlineOutlined fontSize="large" />
+                        </IconButton>
+                    </Grid>
+                )}
+            </>
+        );
+    };
+
     return (
         <div>
             <Navbar />
@@ -803,7 +857,7 @@ export function Campeonato() {
                             spacing={2}
                             className={classes.container}
                         >
-                            <Grid container xs={6} className={classes.leftSide}>
+                            <Grid container xs={7} className={classes.leftSide}>
                                 <Grid
                                     className={classes.campeonatos}
                                     item
@@ -821,42 +875,11 @@ export function Campeonato() {
                                     spacing={2}
                                     className={classes.menuItems}
                                 >
-                                    {modifyButtons === "add" && (
-                                        <Grid item xs={2}>
-                                            <IconButton
-                                                variant="contained"
-                                                color="primary"
-                                                onClick={
-                                                    handleClickCompetidores
-                                                }
-                                                className={classes.addPersona}
-                                            >
-                                                <AddCircle fontSize="large" />
-                                            </IconButton>
-                                            <AgregarCompetidores
-                                                open={agregarCompetidoresOpen}
-                                                handleClose={
-                                                    handleCloseCompetidores
-                                                }
-                                                idCampeonato={campeonato.id}
-                                            />
-                                        </Grid>
-                                    )}
-                                    {modifyButtons === "eliminar" && (
-                                        <Grid item xs={2}>
-                                            <IconButton
-                                                variant="contained"
-                                                color="secondary"
-                                                onClick={() => {
-                                                    handleEliminar();
-                                                }}
-                                                className={
-                                                    classes.personaBtnEliminar
-                                                }
-                                            >
-                                                <DeleteOutlineOutlined fontSize="large" />
-                                            </IconButton>
-                                        </Grid>
+                                    {campeonato.clubes &&
+                                    datos.id in campeonato.clubes ? (
+                                        condicionInscrito()
+                                    ) : (
+                                        <Grid item xs={2}></Grid>
                                     )}
 
                                     <Grid item xs={4}>
@@ -1042,7 +1065,7 @@ export function Campeonato() {
                             <Grid item xs={0}></Grid>
                             <Grid
                                 container
-                                xs={5}
+                                xs={4}
                                 className={classes.rightSide}
                             >
                                 <Grid
@@ -1053,26 +1076,39 @@ export function Campeonato() {
                                 >
                                     <Typography variant="h4">Foro</Typography>
                                 </Grid>
-                                <Grid item xs={10} spacing={2}>
-                                    buenasshh
-                                </Grid>
+                                {/* <form>
+                                    <Grid item xs={10} spacing={2}>
+                                        <TextField
+                                            value={message}
+                                            onChange={(e) =>
+                                                setMessage(e.target.value)
+                                            }
+                                        ></TextField>
+                                        <Button type="submit" onClick={onClickEnviarMensaje}>
+                                            enviar mensaje
+                                        </Button>
+                                    </Grid>
+                                </form>
+                                <ul>
+                                    {messages.map(m=> <li key={m.id}>{m.message}</li>)}
+                                </ul> */}
                             </Grid>
                         </Grid>
                         <div className={classes.snackbar}>
-                                <Snackbar
-                                    open={openSnackbar}
-                                    autoHideDuration={6000}
+                            <Snackbar
+                                open={openSnackbar}
+                                autoHideDuration={6000}
+                                onClose={handleCloseSnackbar}
+                            >
+                                <Alert
                                     onClose={handleCloseSnackbar}
+                                    severity="error"
                                 >
-                                    <Alert
-                                        onClose={handleCloseSnackbar}
-                                        severity="error"
-                                    >
-                                        No puedes eliminar un competidor que no
-                                        sea de tu club
-                                    </Alert>
-                                </Snackbar>
-                            </div>
+                                    No puedes eliminar un competidor que no sea
+                                    de tu club
+                                </Alert>
+                            </Snackbar>
+                        </div>
                     </Container>
                 ) : (
                     <div className={classes.loadingContainer}>

@@ -6,14 +6,13 @@ import {
     Link,
     Container,
     CssBaseline,
-    Avatar,
     Grid,
     Box,
 } from "@material-ui/core";
-import { LockOutlined } from "@material-ui/icons";
 import { useState } from "react";
 import { useAuth } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
+import { Logo } from "./LogoAuth";
 // import ImageLogin from "../images/login.jpg";
 
 function Copyright() {
@@ -35,14 +34,14 @@ function Copyright() {
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
+        marginTop: theme.spacing(6),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
     },
     avatar: {
         margin: theme.spacing(1),
-        backgroundColor: "#e55156",
+        backgroundColor: "#ffffff",
     },
     form: {
         width: "100%",
@@ -100,9 +99,9 @@ export function Login() {
         <Container component="main" maxWidth="xs" color="#f8f6f4">
             <CssBaseline />
             <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <LockOutlined />
-                </Avatar>
+                <div className={classes.avatar}>
+                    <Logo/>
+                </div>
                 <Typography component="h1" variant="h5">
                     Iniciar Sesión
                 </Typography>

@@ -18,7 +18,7 @@ import {
 } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../../firebase-config";
+import { db } from "../../../../firebase-config";
 import {
     collection,
     doc,
@@ -30,7 +30,7 @@ import {
     where,
     writeBatch,
 } from "firebase/firestore";
-import { useAuth } from "../../../context/authContext";
+import { useAuth } from "../../../../context/authContext";
 
 const theme = createTheme({
     palette: {

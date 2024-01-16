@@ -13,7 +13,7 @@ import {
     Select,
 } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { db } from "../../../firebase-config";
+import { db } from "../../../../firebase-config";
 import { doc,  updateDoc } from "firebase/firestore";
 
 const useStyles = makeStyles((theme) => ({

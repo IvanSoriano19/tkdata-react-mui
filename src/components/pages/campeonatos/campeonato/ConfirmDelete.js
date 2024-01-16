@@ -10,15 +10,11 @@ import {
 } from "@material-ui/core";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../../firebase-config";
+import { db } from "../../../../firebase-config";
 import {
     collection,
     doc,
-    getDocs,
     getFirestore,
-    query,
-    updateDoc,
-    where,
     writeBatch,
 } from "firebase/firestore";
 
