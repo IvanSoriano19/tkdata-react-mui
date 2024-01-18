@@ -638,7 +638,7 @@ export function Campeonato() {
             campeonato: refreshCampeonato.nombre,
         };
 
-        await addDoc(collection(db, "messages"), newMessage);
+        await addDoc(collection(db, "Foro"), newMessage);
 
         setMessage({
             mensaje: "",
@@ -651,7 +651,7 @@ export function Campeonato() {
     useEffect(() => {
         const obtenerMessages = async () => {
             const datosQuery = query(
-                collection(db, "messages"),
+                collection(db, "Foro"),
                 where("campeonato", "==", refreshCampeonato.nombre)
             );
 
