@@ -227,7 +227,6 @@ export function AgregarCompetidores(props) {
                                         (personaId) => {
                                             const row =
                                                 datosPersonas[personaId];
-                                                console.log(personaId)
                                             return (
                                                 <TableRow
                                                     key={personaId}

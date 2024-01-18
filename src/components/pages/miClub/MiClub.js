@@ -36,7 +36,7 @@ import {
     EditOutlined,
     DeleteOutlineOutlined,
     AddCircle,
-    HourglassEmptyOutlined
+    HourglassEmptyOutlined,
 } from "@material-ui/icons";
 
 const theme = createTheme({
@@ -72,8 +72,8 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "30px",
         marginBottom: "30px",
     },
-    table:{
-        marginTop:"-15px"
+    table: {
+        marginTop: "-15px",
     },
     miclub: {
         width: "100%",
@@ -85,8 +85,8 @@ const useStyles = makeStyles((theme) => ({
     miclubBtnEditar: {
         justifyContent: "flex-end",
     },
-    miclubInfo:{
-        marginTop:"7px"
+    miclubInfo: {
+        marginTop: "7px",
     },
     personaBtnCrear: {
         justifyContent: "flex-end",
@@ -105,10 +105,10 @@ const useStyles = makeStyles((theme) => ({
         margin: "auto",
     },
     loadingContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh', // Ajusta esto según tus necesidades
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh", // Ajusta esto según tus necesidades
     },
 }));
 
@@ -122,7 +122,9 @@ export function MiClub() {
     const [openEditPersona, setOpenEditPersona] = useState(false);
     const [personasSeleccionadas, setPersonasSeleccionadas] = useState([]);
     const [modifyButtons, setModifyButtons] = useState("crear");
-    const [tempPersonasSeleccionadas, setTempPersonasSeleccionadas] = useState([])
+    const [tempPersonasSeleccionadas, setTempPersonasSeleccionadas] = useState(
+        []
+    );
     const handleClick = () => {
         setOpen(true);
     };
@@ -256,9 +258,9 @@ export function MiClub() {
             setTempPersonasSeleccionadas([]);
 
             console.log(
-                    "Después de resetear personasSeleccionadas",
-                    tempPersonasSeleccionadas
-                );
+                "Después de resetear personasSeleccionadas",
+                tempPersonasSeleccionadas
+            );
 
             const datosQuery = query(
                 collection(db, "Personas"),
@@ -306,17 +308,23 @@ export function MiClub() {
                                     club={datos}
                                 />
                             </Grid>
-                            <Grid item
+                            <Grid
+                                item
                                 xs={12}
                                 sm={8}
-                                className={classes.miclubInfo}>
-                                <Typography variant="h4">Información del club</Typography>
+                                className={classes.miclubInfo}
+                            >
+                                <Typography variant="h4">
+                                    Información del club
+                                </Typography>
                             </Grid>
-                            
+
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
-                                    disabled
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
                                     label="Nombre del club"
                                     value={datos.name}
                                     variant="outlined"
@@ -328,7 +336,9 @@ export function MiClub() {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
-                                    disabled
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
                                     label="Email del club"
                                     value={datos.email}
                                     variant="outlined"
@@ -340,7 +350,9 @@ export function MiClub() {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
-                                    disabled
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
                                     label="Telefono del club"
                                     value={datos.telefono}
                                     variant="outlined"
@@ -352,7 +364,9 @@ export function MiClub() {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
-                                    disabled
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
                                     label="Tipo de club"
                                     value={datos.tipoClub}
                                     variant="outlined"
@@ -364,7 +378,9 @@ export function MiClub() {
                             <Grid item xs={12} sm={3}>
                                 <TextField
                                     className={classes.miclub}
-                                    disabled
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
                                     label="Provincia del club"
                                     value={datos.provincia}
                                     variant="outlined"
@@ -376,7 +392,9 @@ export function MiClub() {
                             <Grid item xs={12} sm={3}>
                                 <TextField
                                     className={classes.miclub}
-                                    disabled
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
                                     label="Municipio del club"
                                     value={datos.municipio}
                                     variant="outlined"
@@ -388,7 +406,9 @@ export function MiClub() {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     className={classes.miclub}
-                                    disabled
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
                                     label="Direccion del club"
                                     value={datos.direccion}
                                     variant="outlined"
@@ -401,10 +421,10 @@ export function MiClub() {
                     </Container>
                 ) : (
                     <div className={classes.loadingContainer}>
-                <IconButton className={classes.loading}>
-                    <HourglassEmptyOutlined fontSize="large" />
-                </IconButton>
-            </div>
+                        <IconButton className={classes.loading}>
+                            <HourglassEmptyOutlined fontSize="large" />
+                        </IconButton>
+                    </div>
                 )}
                 {datos ? (
                     <Container maxWidth="md" className={classes.global}>
@@ -574,7 +594,7 @@ export function MiClub() {
                     </Container>
                 ) : (
                     <IconButton className={classes.loading}>
-                        <HourglassEmptyOutlined/>
+                        <HourglassEmptyOutlined />
                     </IconButton>
                 )}
             </ThemeProvider>

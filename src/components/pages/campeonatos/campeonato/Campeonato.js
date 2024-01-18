@@ -22,6 +22,8 @@ import {
     TableRow,
     Checkbox,
     Snackbar,
+    Card,
+    CardContent,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import {
@@ -34,10 +36,12 @@ import {
     getFirestore,
     writeBatch,
     updateDoc,
+    addDoc,
+    onSnapshot,
+    Timestamp,
 } from "firebase/firestore";
 import { db } from "../../../../firebase-config";
 import { useAuth } from "../../../../context/authContext";
-import { Personas } from "../../miClub/Personas";
 import { EditCampeonato } from "../campeonato/EditCampeonato";
 import { ConfirmDelete } from "../campeonato/ConfirmDelete";
 import {
@@ -47,6 +51,7 @@ import {
     HourglassEmptyOutlined,
     AddCircle,
     ReplayOutlined,
+    Send,
 } from "@material-ui/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AgregarCompetidores } from "./AgregarCompetidores";
@@ -169,6 +174,34 @@ const useStyles = makeStyles((theme) => ({
         display: "flex-end",
         // alignItems: "right",
     },
+    foroContainer: {
+        display: "flex",
+    },
+    btnEnviar: {
+        display: "flex-end",
+    },
+    card: {
+        borderRadius: "12px 12px 0 12px",
+        overflow: "hidden",
+        width: "300px",
+        alignSelf: "flex-end",
+        paddingBottom: "-5px",
+    },
+    cardContent: {
+        padding: "3px ",
+        paddingBottom: "0px",
+    },
+    nombreChat: {
+        fontWeight: "bold",
+    },
+    mensajesContent: {
+        marginBottom: "-19px",
+    },
+    messages: {
+        justifyContent: "flex-end",
+        marginRight: "10px",
+        marginBottom: "20px",
+    },
 }));
 
 function Alert(props) {
@@ -196,17 +229,74 @@ export function Campeonato() {
     const [pesoSeleccionado, setPesoSeleccionado] = useState("");
     const [personasFiltradas, setPersonasFiltradas] = useState([]);
     const [modifyButtons, setModifyButtons] = useState("add");
-    const [message, setMessage] = useState("");
-    // const { loading, messages, error } = useChat();
+    const [message, setMessage] = useState({
+        mensaje: "",
+        timestamp: "",
+        club: "",
+        campeonato: "",
+    });
+    const [messages, setMessages] = useState([]);
 
-    // const onClickEnviarMensaje = (e) =>{
-    //     e.preventDefault();
+    const onClickEnviarMensaje = async (e) => {
+        e.preventDefault();
 
-    //     doc(db,'messages').add({
-    //         timestamp: Date.now(),
-    //         message
-    //     });
-    // }
+        const newMessage = {
+            ...message,
+            timestamp: Date.now(),
+            club: datos.name,
+            campeonato: refreshCampeonato.nombre,
+        };
+
+        await addDoc(collection(db, "messages"), newMessage);
+
+        setMessage({
+            mensaje: "",
+            timestamp: "",
+            club: "",
+            campeonato: "",
+        });
+    };
+
+    const handleChangeMensajes = (event, campo) => {
+        const { value } = event.target;
+        setMessage({ ...message, [campo]: value });
+        console.log(message);
+    };
+
+    useEffect(() => {
+        const obtenerMessages = async () => {
+            const datosQuery = query(
+                collection(db, "messages"),
+                where("campeonato", "==", refreshCampeonato.nombre)
+            );
+
+            const unsubscribe = onSnapshot(
+                datosQuery,
+                (snapshot) => {
+                    if (snapshot.empty) {
+                        console.log("No hay mensajes para este club.");
+                        return;
+                    }
+                    const mensajes = [];
+                    // Si hay al menos un documento, muestra la información
+                    snapshot.forEach((doc) => {
+                        mensajes.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    const sortedMessages = mensajes
+                        .slice()
+                        .sort((a, b) => b.timestamp - a.timestamp);
+
+                    setMessages(sortedMessages);
+                },
+                (error) => {
+                    console.error("Error al obtener mensajes:", error);
+                }
+            );
+            return () => unsubscribe();
+        };
+        obtenerMessages();
+    }, [datos, refreshCampeonato]);
 
     const handleClickSnackbar = () => {
         setOpenSnackbar(true);
@@ -402,7 +492,6 @@ export function Campeonato() {
         } else {
             setModifyButtons("eliminar");
         }
-        console.log("Después de actualizar useffect:", personasSeleccionadas);
     }, [personasSeleccionadas]);
 
     const handleSelectPersona = (id) => {
@@ -414,15 +503,6 @@ export function Campeonato() {
         } else {
             setPersonasSeleccionadas([...personasSeleccionadas, id]);
         }
-        console.log(
-            "Estado de personasSeleccionadas: handleSelectPersona===",
-            personasSeleccionadas
-        );
-        console.log(
-            "Después de actualizar: handleSelectPersona===",
-            personasSeleccionadas
-        );
-        console.log(personasSeleccionadas);
     };
 
     const handleEliminar = async () => {
@@ -431,11 +511,6 @@ export function Campeonato() {
         }
 
         const batch = writeBatch(getFirestore());
-
-        console.log(personasFiltradas);
-        console.log(personasSeleccionadas);
-        console.log(refreshCampeonato.competidores);
-        console.log(campeonato.id);
 
         try {
             const campeonatoDoc = await getDoc(
@@ -448,14 +523,10 @@ export function Campeonato() {
 
                 const competidoresNuevosSet = new Set(competidoresActuales);
 
-                console.log(datos.name);
-
                 for (const personaId of personasSeleccionadas) {
                     const personasDoc = await getDoc(
                         doc(db, "Personas", personaId)
                     );
-
-                    console.log(personasDoc.data());
 
                     if (datos.name === personasDoc.data().Club) {
                         competidoresNuevosSet.delete(personaId);
@@ -507,8 +578,6 @@ export function Campeonato() {
     useEffect(() => {
         cambiarSexo();
     }, [sexoSeleccionado]);
-
-    console.log(refreshCampeonato);
 
     const obtenerCompetidores = async (campeonatoId) => {
         try {
@@ -626,8 +695,6 @@ export function Campeonato() {
     //     : [];
 
     const mostrarDatosCampeonato = () => {
-        console.log(datos.name);
-        console.log(campeonato.clubes);
         if (!datos.name) {
         }
         return (
@@ -635,19 +702,23 @@ export function Campeonato() {
                 <Grid item xs={12} sm={6}>
                     <TextField
                         className={classes.campeonato}
-                        disabled
                         label="Direccion"
                         value={refreshCampeonato.direccion}
                         variant="outlined"
                         InputLabelProps={{
                             shrink: true,
                         }}
+                        InputProps={{
+                            readOnly: true,
+                        }}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
                         className={classes.campeonato}
-                        disabled
+                        InputProps={{
+                            readOnly: true,
+                        }}
                         label="Lugar"
                         value={refreshCampeonato.lugar}
                         variant="outlined"
@@ -659,7 +730,9 @@ export function Campeonato() {
                 <Grid item xs={12} sm={6}>
                     <TextField
                         className={classes.campeonato}
-                        disabled
+                        InputProps={{
+                            readOnly: true,
+                        }}
                         label="Fecha"
                         value={refreshCampeonato.fecha}
                         variant="outlined"
@@ -671,7 +744,9 @@ export function Campeonato() {
                 <Grid item xs={12} sm={6}>
                     <TextField
                         className={classes.campeonato}
-                        disabled
+                        InputProps={{
+                            readOnly: true,
+                        }}
                         label="Organizador"
                         value={refreshCampeonato.organizador}
                         variant="outlined"
@@ -683,7 +758,9 @@ export function Campeonato() {
                 <Grid item xs={12} sm={6}>
                     <TextField
                         className={classes.campeonato}
-                        disabled
+                        InputProps={{
+                            readOnly: true,
+                        }}
                         label="Tipo de campeonato"
                         value={refreshCampeonato.tipo}
                         variant="outlined"
@@ -695,7 +772,9 @@ export function Campeonato() {
                 <Grid item xs={12} sm={6}>
                     <TextField
                         className={classes.campeonato}
-                        disabled
+                        InputProps={{
+                            readOnly: true,
+                        }}
                         label="Categoria"
                         value={refreshCampeonato.categoria}
                         variant="outlined"
@@ -984,67 +1063,61 @@ export function Campeonato() {
                                                 <TableBody>
                                                     {personasFiltradas.map(
                                                         (row) => (
-                                                            console.log(
-                                                                "ROW",
-                                                                row
-                                                            ),
-                                                            (
-                                                                <TableRow
-                                                                    key={row.id}
-                                                                    role="checkbox"
-                                                                >
-                                                                    <TableCell padding="checkbox">
-                                                                        {console.log(
-                                                                            personasSeleccionadas
+                                                            <TableRow
+                                                                key={row.id}
+                                                                role="checkbox"
+                                                            >
+                                                                <TableCell padding="checkbox">
+                                                                    {console.log(
+                                                                        personasSeleccionadas
+                                                                    )}
+                                                                    <Checkbox
+                                                                        checked={personasSeleccionadas.includes(
+                                                                            row.id
                                                                         )}
-                                                                        <Checkbox
-                                                                            checked={personasSeleccionadas.includes(
+                                                                        onChange={() =>
+                                                                            handleSelectPersona(
                                                                                 row.id
-                                                                            )}
-                                                                            onChange={() =>
-                                                                                handleSelectPersona(
-                                                                                    row.id
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                    </TableCell>
-                                                                    <TableCell align="left">
-                                                                        <Typography>
-                                                                            {
-                                                                                row.Nombre
-                                                                            }
-                                                                        </Typography>
-                                                                    </TableCell>
-                                                                    <TableCell align="left">
-                                                                        <Typography>
-                                                                            {
-                                                                                row.Apellido
-                                                                            }
-                                                                        </Typography>
-                                                                    </TableCell>
-                                                                    <TableCell align="left">
-                                                                        <Typography>
-                                                                            {
-                                                                                row.Edad
-                                                                            }
-                                                                        </Typography>
-                                                                    </TableCell>
-                                                                    <TableCell align="left">
-                                                                        <Typography>
-                                                                            {
-                                                                                row.Peso
-                                                                            }
-                                                                        </Typography>
-                                                                    </TableCell>
-                                                                    <TableCell align="left">
-                                                                        <Typography>
-                                                                            {
-                                                                                row.Club
-                                                                            }
-                                                                        </Typography>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            )
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </TableCell>
+                                                                <TableCell align="left">
+                                                                    <Typography>
+                                                                        {
+                                                                            row.Nombre
+                                                                        }
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell align="left">
+                                                                    <Typography>
+                                                                        {
+                                                                            row.Apellido
+                                                                        }
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell align="left">
+                                                                    <Typography>
+                                                                        {
+                                                                            row.Edad
+                                                                        }
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell align="left">
+                                                                    <Typography>
+                                                                        {
+                                                                            row.Peso
+                                                                        }
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell align="left">
+                                                                    <Typography>
+                                                                        {
+                                                                            row.Club
+                                                                        }
+                                                                    </Typography>
+                                                                </TableCell>
+                                                            </TableRow>
                                                         )
                                                     )}
                                                     {console.log(
@@ -1070,22 +1143,87 @@ export function Campeonato() {
                                 >
                                     <Typography variant="h4">Foro</Typography>
                                 </Grid>
-                                {/* <form>
-                                    <Grid item xs={10} spacing={2}>
-                                        <TextField
-                                            value={message}
-                                            onChange={(e) =>
-                                                setMessage(e.target.value)
-                                            }
-                                        ></TextField>
-                                        <Button type="submit" onClick={onClickEnviarMensaje}>
-                                            enviar mensaje
-                                        </Button>
+                                <form onSubmit={(e) => e.preventDefault()}>
+                                    <Grid
+                                        container
+                                        xs={12}
+                                        sm={12}
+                                        spacing={2}
+                                        className={classes.foroContainer}
+                                    >
+                                        <Grid item xs={9} spacing={2}>
+                                            <TextField
+                                                onChange={(e) => {
+                                                    handleChangeMensajes(
+                                                        e,
+                                                        "mensaje"
+                                                    );
+                                                }}
+                                                value={message.mensaje}
+                                            ></TextField>
+                                        </Grid>
+                                        <Grid
+                                            item
+                                            xs={3}
+                                            spacing={2}
+                                            className={classes.btnEnviar}
+                                        >
+                                            <IconButton>
+                                                <Send
+                                                    type="submit"
+                                                    onClick={
+                                                        onClickEnviarMensaje
+                                                    }
+                                                />
+                                            </IconButton>
+                                        </Grid>
                                     </Grid>
                                 </form>
-                                <ul>
-                                    {messages.map(m=> <li key={m.id}>{m.message}</li>)}
-                                </ul> */}
+                                <Grid
+                                    container
+                                    spacing={1}
+                                    className={classes.messages}
+                                >
+                                    {messages.map((m) => (
+                                        <Grid item key={m.id}>
+                                            <Card className={classes.card}>
+                                                <CardContent
+                                                    className={
+                                                        classes.cardContent
+                                                    }
+                                                >
+                                                    <Grid
+                                                        container
+                                                        xs={12}
+                                                        sm={12}
+                                                        spacing={1}
+                                                    >
+                                                        <Grid item xs={12}>
+                                                            <Typography
+                                                                className={
+                                                                    classes.nombreChat
+                                                                }
+                                                            >
+                                                                {m.club}
+                                                            </Typography>
+                                                        </Grid>
+                                                        <Grid
+                                                            item
+                                                            xs={12}
+                                                            className={
+                                                                classes.mensajesContent
+                                                            }
+                                                        >
+                                                            <Typography>
+                                                                {m.mensaje}
+                                                            </Typography>
+                                                        </Grid>
+                                                    </Grid>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    ))}
+                                </Grid>
                             </Grid>
                         </Grid>
                         <div className={classes.snackbar}>

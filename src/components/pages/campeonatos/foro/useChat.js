@@ -22,5 +22,6 @@ export const useChat = () => {
         );
         return () => unsubscribe();
     }, [setMessages]);
+    console.log(messages)
     return { error, loading, messages };
 };
