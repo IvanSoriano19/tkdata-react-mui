@@ -125,12 +125,10 @@ export function EditPersona(props) {
     useEffect(() => {
         const getData = async () => {
             try {
-                console.log(persona);
                 const docRef = doc(db, "Personas", persona[0]);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    console.log("docsnap 132", docSnap);
                     setDatos(data);
                     setPesoSeleccionado(data.Peso || "");
                     if (data.Categoria === "Cadete") {
@@ -163,7 +161,6 @@ export function EditPersona(props) {
         getData();
     }, []);
 
-    console.log("1", datos);
 
     useEffect(() => {
         if (datos) {
@@ -190,29 +187,13 @@ export function EditPersona(props) {
         Tipo: datos.Tipo || "",
         Sexo: datos.Sexo || "",
     });
-    console.log("2", datos.Nombre);
-    console.log("3", editPersona);
 
     const handleChange = (event, campo) => {
         const { value } = event.target;
-        console.log("handle change => ", editPersona);
-        // if ((campo = "Tipo")&&(value === "Entrenador")) {
-        //     setTipoEntrenador(true);
-        //     setCategoriaSeleccionada("");
-        //     setPesoSeleccionado("");
-        //     editPersona.Categoria = "";
-        //     editPersona.Peso = "";
-        //     console.log("hyola", editPersona)
-        // } else {
-        //     setTipoEntrenador(false);
-        // }
-        console.log("hyola", editPersona)
         setEditPersona((prevPersona) => ({ ...prevPersona, [campo]: value }));
 
     };
     useEffect(() => {
-        console.log("categoria ", editPersona.Categoria);
-        console.log("sexo ", editPersona.Sexo);
         if (editPersona.Categoria === "Cadete") {
             if (editPersona.Sexo === "Masculino") {
                 setContenidoFiltrado(cadeteM);
@@ -245,7 +226,6 @@ export function EditPersona(props) {
 
     useEffect(() => {
         setTipoEntrenador(editPersona.Tipo === "Entrenador");
-        console.log("tipoEntrenador => ",tipoEntrenador)
     }, [editPersona.Tipo]);
     const handleChangeTipo = (event) => {
         const tipo = event.target.value;
@@ -274,9 +254,7 @@ export function EditPersona(props) {
         try {
             event.preventDefault();
 
-            console.log("submit", persona[0]);
             const docRef = doc(db, "Personas", persona[0]);
-            console.log("docref", docRef);
             await updateDoc(docRef, {
                 ...editPersona,
             });
@@ -286,7 +264,6 @@ export function EditPersona(props) {
         }
     };
 
-    console.log("4", editPersona);
     return (
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Editar alumno o entrenador</DialogTitle>
@@ -304,7 +281,6 @@ export function EditPersona(props) {
                                 value={editPersona.Nombre}
                                 onChange={(e) => handleChange(e, "Nombre")}
                             />
-                            {console.log("5", editPersona)}
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
@@ -427,7 +403,6 @@ export function EditPersona(props) {
                                                 handleChange(e, "Peso");
                                             }}
                                         >
-                                            {console.log(contenidoFiltrado)}
                                             {contenidoFiltrado.map(
                                                 (op, index) => (
                                                     <MenuItem
@@ -518,7 +493,7 @@ export function EditPersona(props) {
                         className={classes.submit}
                         onClick={handleSubmit}
                     >
-                        Crear
+                        Editar
                     </Button>
                 </form>
             </DialogContent>

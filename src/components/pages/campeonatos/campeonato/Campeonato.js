@@ -55,8 +55,6 @@ import {
 } from "@material-ui/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AgregarCompetidores } from "./AgregarCompetidores";
-import { useChat } from "../foro/useChat";
-
 const theme = createTheme({
     palette: {
         primary: {
@@ -237,67 +235,6 @@ export function Campeonato() {
     });
     const [messages, setMessages] = useState([]);
 
-    const onClickEnviarMensaje = async (e) => {
-        e.preventDefault();
-
-        const newMessage = {
-            ...message,
-            timestamp: Date.now(),
-            club: datos.name,
-            campeonato: refreshCampeonato.nombre,
-        };
-
-        await addDoc(collection(db, "messages"), newMessage);
-
-        setMessage({
-            mensaje: "",
-            timestamp: "",
-            club: "",
-            campeonato: "",
-        });
-    };
-
-    const handleChangeMensajes = (event, campo) => {
-        const { value } = event.target;
-        setMessage({ ...message, [campo]: value });
-        console.log(message);
-    };
-
-    useEffect(() => {
-        const obtenerMessages = async () => {
-            const datosQuery = query(
-                collection(db, "messages"),
-                where("campeonato", "==", refreshCampeonato.nombre)
-            );
-
-            const unsubscribe = onSnapshot(
-                datosQuery,
-                (snapshot) => {
-                    if (snapshot.empty) {
-                        console.log("No hay mensajes para este club.");
-                        return;
-                    }
-                    const mensajes = [];
-                    // Si hay al menos un documento, muestra la información
-                    snapshot.forEach((doc) => {
-                        mensajes.push({ id: doc.id, ...doc.data() });
-                    });
-
-                    const sortedMessages = mensajes
-                        .slice()
-                        .sort((a, b) => b.timestamp - a.timestamp);
-
-                    setMessages(sortedMessages);
-                },
-                (error) => {
-                    console.error("Error al obtener mensajes:", error);
-                }
-            );
-            return () => unsubscribe();
-        };
-        obtenerMessages();
-    }, [datos, refreshCampeonato]);
-
     const handleClickSnackbar = () => {
         setOpenSnackbar(true);
     };
@@ -412,6 +349,10 @@ export function Campeonato() {
     const handleChangePeso = (event) => {
         const peso = event.target.value;
         setPesoSeleccionado(peso);
+    };
+    const handleChangeMensajes = (event, campo) => {
+        const { value } = event.target;
+        setMessage({ ...message, [campo]: value });
     };
 
     const handleAddClub = async (nuevoClub) => {
@@ -540,7 +481,7 @@ export function Campeonato() {
                         await batch.commit();
                         window.location.reload();
                     } else {
-                        console.log(
+                        console.error(
                             "No puedes eliminar un competidor que no sea de tu club"
                         );
                         setOpenSnackbar(true);
@@ -687,12 +628,60 @@ export function Campeonato() {
         setPesoSeleccionado("");
     };
 
-    // const campeonatosUsuario = datosCampeonatos
-    //     ? Object.values(datosCampeonatos).filter((campeonato) => {
-    //             const clubesCampeonato = Object.values(campeonato.clubes || {});
-    //             return clubesCampeonato.some((club) => club === clubesUsuario);
-    //         })
-    //     : [];
+    const onClickEnviarMensaje = async (e) => {
+        e.preventDefault();
+
+        const newMessage = {
+            ...message,
+            timestamp: Date.now(),
+            club: datos.name,
+            campeonato: refreshCampeonato.nombre,
+        };
+
+        await addDoc(collection(db, "messages"), newMessage);
+
+        setMessage({
+            mensaje: "",
+            timestamp: "",
+            club: "",
+            campeonato: "",
+        });
+    };
+
+    useEffect(() => {
+        const obtenerMessages = async () => {
+            const datosQuery = query(
+                collection(db, "messages"),
+                where("campeonato", "==", refreshCampeonato.nombre)
+            );
+
+            const unsubscribe = onSnapshot(
+                datosQuery,
+                (snapshot) => {
+                    if (snapshot.empty) {
+                        console.log("No hay mensajes para este club.");
+                        return;
+                    }
+                    const mensajes = [];
+                    snapshot.forEach((doc) => {
+                        mensajes.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    const sortedMessages = mensajes
+                        .slice()
+                        .sort((a, b) => b.timestamp - a.timestamp);
+
+                    setMessages(sortedMessages);
+                },
+                (error) => {
+                    console.error("Error al obtener mensajes:", error);
+                }
+            );
+            return () => unsubscribe();
+        };
+        obtenerMessages();
+    }, [datos, refreshCampeonato]);
+
 
     const mostrarDatosCampeonato = () => {
         if (!datos.name) {
@@ -1068,9 +1057,6 @@ export function Campeonato() {
                                                                 role="checkbox"
                                                             >
                                                                 <TableCell padding="checkbox">
-                                                                    {console.log(
-                                                                        personasSeleccionadas
-                                                                    )}
                                                                     <Checkbox
                                                                         checked={personasSeleccionadas.includes(
                                                                             row.id
@@ -1119,9 +1105,6 @@ export function Campeonato() {
                                                                 </TableCell>
                                                             </TableRow>
                                                         )
-                                                    )}
-                                                    {console.log(
-                                                        datosCompetidores
                                                     )}
                                                 </TableBody>
                                             </Table>
