@@ -87,7 +87,7 @@ export function CrearCampeonato() {
     const handleSubmit = async (e) => {
         e.preventDefault(); 
 
-        if (!campeonatos.nombre || !campeonatos.fecha || !campeonatos.lugar || !campeonatos.direccion || !campeonatos.tipo || !campeonatos.categoria) {
+        if (!campeonatos.nombre || !campeonatos.fecha || !campeonatos.lugar || !campeonatos.direccion || !campeonatos.tipo ||!campeonatos.combateTecnica || !campeonatos.categoria) {
             return;
         }
         try {
@@ -113,6 +113,7 @@ export function CrearCampeonato() {
                     organizador: "",
                     clubes: [],
                     tipo: "",
+                    combateTecnica: "",
                     categoria: "",
                 });
                 navigate('/campeonatos')
@@ -145,6 +146,11 @@ export function CrearCampeonato() {
     const handleChangeTipo = (event) => {
         const tipo = event.target.value;
         setCategoriaSeleccionada(tipo);
+    };
+    const [combateTecnica, setCombateTecnica] = useState("")
+    const handleChangeCombateTecnica = (event) => {
+        const combateTec = event.target.value;
+        setCategoriaSeleccionada(combateTec);
     };
 
     return (
@@ -211,7 +217,7 @@ export function CrearCampeonato() {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={12}>
+                            <Grid item xs={12} sm={6}>
                                 <TextField
                                     variant="outlined"
                                     required
@@ -224,6 +230,29 @@ export function CrearCampeonato() {
                                     }}
                                     
                                 />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <FormControl
+                                    variant="outlined"
+                                    fullWidth
+                                    label="Combate o técnica"
+                                    id="combateTecnica"
+                                >
+                                    <InputLabel>Combate o técnica</InputLabel>
+                                    <Select
+                                            id="combateTecnica"
+                                            onChange={(e) => {
+                                                handleChange(e, "combateTecnica");
+                                                handleChangeCombateTecnica(e);
+                                            }}
+                                            required
+                                            label="Combate o técnica"
+                                        >
+                                            <MenuItem value={"Combate"}>Combate</MenuItem>
+                                            <MenuItem value={"Técnica"}>Técnica</MenuItem>
+                                            
+                                    </Select>
+                                </FormControl>
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <FormControl

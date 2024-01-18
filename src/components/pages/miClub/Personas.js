@@ -213,7 +213,7 @@ export function Personas(props) {
     };
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Añadir alumno o entrenador</DialogTitle>
+            <DialogTitle>Añadir competidor o entrenador</DialogTitle>
             <DialogContent>
                 <form className={classes.form}>
                     <Grid container spacing={2}>

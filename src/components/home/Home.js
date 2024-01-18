@@ -83,7 +83,6 @@ const useStyles = makeStyles((theme) => ({
 
 export function Home() {
     const classes = useStyles();
-
     const { user, loading } = useAuth();
     const [datos, setDatos] = useState(null);
     const [datosPersonas, setDatosPersonas] = useState([]);
@@ -121,8 +120,6 @@ export function Home() {
                 id: doc.id,
                 ...doc.data(),
             }));
-            console.log("datosSnapshot ", datosSnapshot);
-            console.log("datosPers ", datosPers);
             setDatosPersonas(datosPers);
         };
         obtenerDatos();
@@ -168,9 +165,7 @@ export function Home() {
                     };
                 })
             );
-
             setDatosCampeonatos(campeonatosData);
-            console.log(campeonatosData);
         } catch (error) {
             console.error("Error al obtener datos de campeonatos:", error);
             setDatosCampeonatos({});
@@ -195,9 +190,9 @@ export function Home() {
 
     const campeonatosUsuario = datosCampeonatos
         ? Object.values(datosCampeonatos).filter((campeonato) => {
-              const clubesCampeonato = Object.values(campeonato.clubes || {});
-              return clubesCampeonato.some((club) => club === clubesUsuario);
-          })
+                const clubesCampeonato = Object.values(campeonato.clubes || {});
+                return clubesCampeonato.some((club) => club === clubesUsuario);
+        })
         : [];
 
     const mostrarCampeonatos = (ctos) => {
@@ -270,8 +265,8 @@ export function Home() {
             <Navbar />
 
             <Container maxWidth="md" className={classes.global}>
-                <Grid container spacing={2} className={classes.container}>
-                    <Grid item xs={6} className={classes.leftSide}>
+                <Grid container sm={12} spacing={0} className={classes.container}>
+                    <Grid item xs={7} className={classes.leftSide}>
                         <Grid item xs={12} sm={12}>
                             <TableContainer>
                                 <Table
@@ -293,6 +288,11 @@ export function Home() {
                                             <TableCell align="left">
                                                 <Typography variant="h6">
                                                     Edad
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell align="left">
+                                                <Typography variant="h6">
+                                                    Tipo
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="left">
@@ -322,6 +322,11 @@ export function Home() {
                                                 </TableCell>
                                                 <TableCell align="left">
                                                     <Typography>
+                                                        {row.Tipo}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    <Typography>
                                                         {row.Categoria}
                                                     </Typography>
                                                 </TableCell>
@@ -332,14 +337,14 @@ export function Home() {
                             </TableContainer>
                         </Grid>
                     </Grid>
-                    <Grid item xs={1}></Grid>
-                    <Grid container xs={5} className={classes.rightSide}>
+                    <Grid item xs={0}></Grid>
+                    <Grid container xs={4} className={classes.rightSide}>
                         <Grid
                             item
                             className={classes.campeonatos}
                             xs={12}
                             sm={12}
-                            spacing={2}
+                            spacing={1}
                         >
                             <Typography variant="h4">
                                 Mis campeonatos

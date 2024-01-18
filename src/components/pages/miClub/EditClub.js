@@ -43,6 +43,7 @@ export function EditClub(props) {
         telefono: club.telefono || "",
         tipoClub: club.tipoClub || "",
         provincia: club.provincia || "",
+        municipio: club.municipio || "",
         direccion: club.direccion || ""
     });
 
@@ -88,13 +89,23 @@ export function EditClub(props) {
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={3}>
                             <TextField
                                 variant="outlined"
                                 fullWidth
                                 id="provincia"
                                 label="Provincia"
                                 value={editClub.provincia}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField
+                                variant="outlined"
+                                fullWidth
+                                id="municipio"
+                                label="Municipio"
+                                value={editClub.municipio}
                                 onChange={handleChange}
                             />
                         </Grid>

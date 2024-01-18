@@ -361,12 +361,24 @@ export function MiClub() {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={12} sm={3}>
                                 <TextField
                                     className={classes.miclub}
                                     disabled
                                     label="Provincia del club"
                                     value={datos.provincia}
+                                    variant="outlined"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={3}>
+                                <TextField
+                                    className={classes.miclub}
+                                    disabled
+                                    label="Municipio del club"
+                                    value={datos.municipio}
                                     variant="outlined"
                                     InputLabelProps={{
                                         shrink: true,

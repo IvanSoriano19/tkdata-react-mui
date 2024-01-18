@@ -67,10 +67,6 @@ export function Login() {
     const { login } = useAuth();
     const [errors, setErrors] = useState();
 
-    // const handleChange = ({ target: { id, value } }) => {
-    //     setUser({ ...user, [id]: value });
-    //     console.log(user)
-    // };
     const handleChange = ({ target: { id, value } }) => {
         setUser((prevUser) => {
             const newUser = { ...prevUser, [id]: value };
@@ -79,7 +75,6 @@ export function Login() {
         });
     };
     
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors("");
@@ -137,11 +132,6 @@ export function Login() {
                         Iniciar Sesión
                     </Button>
                     <Grid container>
-                        <Grid item xs>
-                            <Link href="#" variant="body2">
-                                ¿Olvidaste la contraseña?
-                            </Link>
-                        </Grid>
                         <Grid item>
                             <Link onClick={handleRegister} variant="body2">
                                 {"¿Aun no tienes cuenta?"}

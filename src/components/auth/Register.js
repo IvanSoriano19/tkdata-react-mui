@@ -63,23 +63,23 @@ const useStyles = makeStyles((theme) => ({
 
 export function Register(props) {
     const classes = useStyles();
-    const [user, setUser] = useState({
-        id: "",
-        name: "",
-        provincia: "",
-        direccion: "",
-        email: "",
-        telefono: "",
-        tipoClub: "",
-        password: "",
-    });
-
     const { signup } = useAuth();
     const navigate = useNavigate();
     const [errors, setErrors] = useState();
     const [tipoClub, setTipoClub] = useState("");
     const [provincia, setProvincia] = useState("");
-
+    
+    const [user, setUser] = useState({
+        id: "",
+        name: "",
+        provincia: "",
+        direccion: "",
+        municipio:"",
+        email: "",
+        telefono: "",
+        tipoClub: "",
+        password: "",
+    });
     const handleChange = (event, campo) => {
         const { value } = event.target;
         setUser({ ...user, [campo]: value });

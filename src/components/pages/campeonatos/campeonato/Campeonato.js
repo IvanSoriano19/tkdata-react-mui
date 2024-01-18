@@ -437,14 +437,11 @@ export function Campeonato() {
         console.log(refreshCampeonato.competidores);
         console.log(campeonato.id);
 
-        // console.log(campeonatoDoc.data());
-        // console.log(campeonatoDoc.exists());
         try {
             const campeonatoDoc = await getDoc(
                 doc(db, "Campeonatos", campeonato.id)
             );
 
-            // Obtener el documento actual del campeonato
             if (campeonatoDoc.exists()) {
                 const competidoresActuales =
                     campeonatoDoc.data().competidores || [];
@@ -454,7 +451,6 @@ export function Campeonato() {
                 console.log(datos.name);
 
                 for (const personaId of personasSeleccionadas) {
-                    // Esperar a que la promesa se resuelva
                     const personasDoc = await getDoc(
                         doc(db, "Personas", personaId)
                     );
@@ -493,7 +489,6 @@ export function Campeonato() {
             } else if (sexoSeleccionado === "Femenino") {
                 setPesoFiltrado(cadeteF);
             }
-            console.log("pesofiltrado =====>", pesoFiltrado);
         } else if (campeonato.categoria === "Junior") {
             if (sexoSeleccionado === "Masculino") {
                 setPesoFiltrado(juniorM);
@@ -587,10 +582,9 @@ export function Campeonato() {
 
     const filtrarPersonas = () => {
         if (!Array.isArray(datosCompetidores)) {
-            console.error("datosCompetidores no es un array válido");
+            console.error("datosCompetidores no es valido");
             return;
         }
-
         if (sexoSeleccionado === "") {
             setPersonasFiltradas(datosCompetidores);
         } else {

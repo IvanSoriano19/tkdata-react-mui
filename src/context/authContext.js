@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
                 provincia: user.provincia,
                 email: user.email,
                 tipoClub: user.tipoClub,
+                municipio: user.municipio,
                 direccion: user.direccion,
                 telefono: user.telefono,
                 rol: "club"
