@@ -210,7 +210,6 @@ export function Campeonato() {
     const classes = useStyles();
     const { user } = useAuth();
     const [datos, setDatos] = useState(null);
-    const [datosPersonas, setDatosPersonas] = useState([]);
     const [datosCompetidores, setDatosCompetidores] = useState([]);
     const [openEdit, setOpenEdit] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
@@ -386,22 +385,6 @@ export function Campeonato() {
         }
     };
 
-    const obtenerDatos = async () => {
-        const datosQuery = query(
-            collection(db, "Personas"),
-            where("Club", "==", datos.name)
-        );
-        const datosSnapshot = await getDocs(datosQuery);
-        const datosPers = {};
-        datosSnapshot.docs.forEach((doc) => {
-            datosPers[doc.id] = {
-                id: doc.id,
-                ...doc.data(),
-            };
-        });
-        setDatosPersonas(datosPers);
-    };
-
     useEffect(() => {
         const getData = async () => {
             try {
@@ -422,7 +405,6 @@ export function Campeonato() {
     }, [user]);
 
     useEffect(() => {
-        obtenerDatos();
         obtenerCampeonato();
         obtenerCompetidores();
     }, [datos]);
@@ -654,12 +636,11 @@ export function Campeonato() {
                 collection(db, "Foro"),
                 where("campeonato", "==", refreshCampeonato.nombre)
             );
-
             const unsubscribe = onSnapshot(
                 datosQuery,
                 (snapshot) => {
                     if (snapshot.empty) {
-                        console.log("No hay mensajes para este club.");
+                        console.log("No hay mensajes en este campeonato.");
                         return;
                     }
                     const mensajes = [];

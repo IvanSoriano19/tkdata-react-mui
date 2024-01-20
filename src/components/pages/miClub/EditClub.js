@@ -7,10 +7,14 @@ import {
     Grid,
     TextField,
     makeStyles,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
 } from "@material-ui/core";
 import React, { useState } from "react";
 import { db } from "../../../firebase-config";
-import { doc, updateDoc} from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -39,26 +43,32 @@ const useStyles = makeStyles((theme) => ({
 export function EditClub(props) {
     const classes = useStyles();
     const { open, handleClose, club } = props;
+    const [provincia, setProvincia] = useState();
     const [editClub, setEditClub] = useState({
         telefono: club.telefono || "",
         tipoClub: club.tipoClub || "",
         provincia: club.provincia || "",
         municipio: club.municipio || "",
-        direccion: club.direccion || ""
+        direccion: club.direccion || "",
     });
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
         const docRef = doc(db, "clubes", club.id);
-        await updateDoc(docRef,{
-            ...editClub
+        await updateDoc(docRef, {
+            ...editClub,
         });
-        setTimeout(1000)
+        setTimeout(1000);
         handleClose();
     };
-    const handleChange = ({target: { id, value }}) => {
-        console.log(editClub)
-        setEditClub({ ...editClub, [id]: value });
+    const handleChange = (event, campo) => {
+        const { value } = event.target;
+        setEditClub({ ...editClub, [campo]: value });
+    };
+
+    const handleChangeProvincia = (event) => {
+        const provincia = event.target.value;
+        setProvincia(provincia);
     };
 
     return (
@@ -75,7 +85,9 @@ export function EditClub(props) {
                                 id="telefono"
                                 label="Telefono"
                                 value={editClub.telefono}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    handleChange(e, "telefono");
+                                }}
                                 autoFocus
                             />
                         </Grid>
@@ -86,19 +98,42 @@ export function EditClub(props) {
                                 id="tipoClub"
                                 label="Tipo de club"
                                 value={editClub.tipoClub}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    handleChange(e, "tipoClub");
+                                }}
                             />
                         </Grid>
                         <Grid item xs={12} sm={3}>
-                            <TextField
+                            <FormControl
                                 variant="outlined"
                                 fullWidth
-                                id="provincia"
                                 label="Provincia"
-                                value={editClub.provincia}
-                                onChange={handleChange}
-                            />
+                                id="provincia"
+                            >
+                                <InputLabel>Provincia</InputLabel>
+                                <Select
+                                    id="provincia"
+                                    onChange={(e) => {
+                                        handleChange(e, "provincia");
+                                        handleChangeProvincia(e);
+                                    }}
+                                    required
+                                    label="Provincia"
+                                    value={editClub.provincia}
+                                >
+                                    <MenuItem value={"Castellón"}>
+                                        Castellón
+                                    </MenuItem>
+                                    <MenuItem value={"Valencia"}>
+                                        Valencia
+                                    </MenuItem>
+                                    <MenuItem value={"Alicante"}>
+                                        Alicante
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
                         </Grid>
+
                         <Grid item xs={12} sm={3}>
                             <TextField
                                 variant="outlined"
@@ -106,7 +141,9 @@ export function EditClub(props) {
                                 id="municipio"
                                 label="Municipio"
                                 value={editClub.municipio}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    handleChange(e, "municipio");
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6}>
@@ -116,10 +153,11 @@ export function EditClub(props) {
                                 id="direccion"
                                 label="Direccion"
                                 value={editClub.direccion}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    handleChange(e, "direccion");
+                                }}
                             />
                         </Grid>
-                        
                     </Grid>
                     <Button
                         type="submit"
