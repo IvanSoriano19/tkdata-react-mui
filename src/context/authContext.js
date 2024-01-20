@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
     };
 
     const login = async (user) => {
-        signInWithEmailAndPassword(auth, user.email, user.password)
+        return signInWithEmailAndPassword(auth, user.email, user.password)
     };
 
     const logout = () => signOut(auth)
