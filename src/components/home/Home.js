@@ -111,16 +111,20 @@ export function Home() {
 
     useEffect(() => {
         const obtenerDatos = async () => {
-            const datosQuery = query(
-                collection(db, "Personas"),
-                where("Club", "==", datos.name)
-            );
-            const datosSnapshot = await getDocs(datosQuery);
-            const datosPers = datosSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setDatosPersonas(datosPers);
+            try {
+                const datosQuery = query(
+                    collection(db, "Personas"),
+                    where("Club", "==", datos.name)
+                );
+                const datosSnapshot = await getDocs(datosQuery);
+                const datosPers = datosSnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setDatosPersonas(datosPers);
+            } catch (error) {
+                console.error('Error en la consulta Firestore:', error);
+            }
         };
         obtenerDatos();
     }, [datos]);
@@ -190,9 +194,9 @@ export function Home() {
 
     const campeonatosUsuario = datosCampeonatos
         ? Object.values(datosCampeonatos).filter((campeonato) => {
-                const clubesCampeonato = Object.values(campeonato.clubes || {});
-                return clubesCampeonato.some((club) => club === clubesUsuario);
-        })
+              const clubesCampeonato = Object.values(campeonato.clubes || {});
+              return clubesCampeonato.some((club) => club === clubesUsuario);
+          })
         : [];
 
     const mostrarCampeonatos = (ctos) => {
@@ -234,7 +238,8 @@ export function Home() {
                                     <Typography>
                                         Clubes inscritos:{" "}
                                         {campeonato.clubes
-                                            ? Object.values(campeonato.clubes).length
+                                            ? Object.values(campeonato.clubes)
+                                                  .length
                                             : 0}
                                     </Typography>
                                 </Grid>
@@ -265,7 +270,12 @@ export function Home() {
             <Navbar />
 
             <Container maxWidth="md" className={classes.global}>
-                <Grid container sm={12} spacing={0} className={classes.container}>
+                <Grid
+                    container
+                    sm={12}
+                    spacing={0}
+                    className={classes.container}
+                >
                     <Grid item xs={7} className={classes.leftSide}>
                         <Grid item xs={12} sm={12}>
                             <TableContainer>
