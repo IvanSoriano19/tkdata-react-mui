@@ -386,14 +386,30 @@ export function Campeonato() {
 
     const obtenerCampeonato = async () => {
         try {
+
             const docRef = doc(db, "Campeonatos", campeonato.id);
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setRefreshCampeonato(data);
-            } else {
-                setRefreshCampeonato(null);
-            }
+            const unsubscribe = onSnapshot(
+                docRef,
+                (snapshot) => {
+                    if (snapshot.empty) {
+                        console.log("snapshot empty");
+                        return;
+                    }
+                    console.log(docSnap)
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        setRefreshCampeonato(data);
+                    } else {
+                        setRefreshCampeonato(null);
+                    }
+                },
+                (error) => {
+                    console.error("Error al obtener campeonato:", error);
+                }
+            );
+            return () => unsubscribe();
+            
         } catch (error) {
             console.error(error);
             setRefreshCampeonato(null);
