@@ -10,7 +10,9 @@ import {
     CssBaseline,
     Container,
     Select,
-    MenuItem, FormControl, InputLabel
+    MenuItem,
+    FormControl,
+    InputLabel,
 } from "@material-ui/core";
 import { useAuth } from "../../../context/authContext";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
@@ -59,7 +61,7 @@ export function CrearCampeonato() {
         lugar: "",
         direccion: "",
         fecha: "",
-        organizador:"",
+        organizador: "",
         clubes: [],
         tipo: "",
         categoria: "",
@@ -85,15 +87,23 @@ export function CrearCampeonato() {
     }, [user]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); 
-
-        if (!campeonatos.nombre || !campeonatos.fecha || !campeonatos.lugar || !campeonatos.direccion || !campeonatos.tipo ||!campeonatos.combateTecnica || !campeonatos.categoria) {
+        e.preventDefault();
+        console.log("1")
+        if (
+            !campeonatos.nombre ||
+            !campeonatos.fecha ||
+            !campeonatos.lugar ||
+            !campeonatos.direccion ||
+            !campeonatos.tipo ||
+            !campeonatos.categoria
+        ) {
             return;
         }
+        console.log("2")
         try {
             const clubDocRef = doc(db, "clubes", user.uid);
             const clubDocSnap = await getDoc(clubDocRef);
-            
+
             if (clubDocSnap.exists()) {
                 const clubData = clubDocSnap.data();
 
@@ -101,6 +111,7 @@ export function CrearCampeonato() {
                     ...campeonatos,
                     organizador: clubData.name,
                     clubes: [clubData.name],
+                    combateTecnica: clubData.tipoClub,
                 };
 
                 await addDoc(collection(db, "Campeonatos"), newCampeonato);
@@ -116,7 +127,7 @@ export function CrearCampeonato() {
                     combateTecnica: "",
                     categoria: "",
                 });
-                navigate('/campeonatos')
+                navigate("/campeonatos");
             } else {
                 console.log("no hay datos del club");
             }
@@ -124,33 +135,26 @@ export function CrearCampeonato() {
             console.error("Error al agregar el campeonato:", error);
         }
     };
-    // console.log(datos)
-
-    // const handleChange = ({ target: { id, value } }) => {
-    //     setCampeonatos({ ...campeonatos, [id]: value });
-    //     
-    // };
-
-    const handleChange = (event, campo ) => {
+    const handleChange = (event, campo) => {
         const { value } = event.target;
-        setCampeonatos({... campeonatos, [campo]: value});
+        setCampeonatos({ ...campeonatos, [campo]: value });
         console.log(campeonatos);
-    }
+    };
 
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
     const handleChangeCategoria = (event) => {
         const categoria = event.target.value;
         setCategoriaSeleccionada(categoria);
     };
-    const [tipoSeleccionado, setTipoSeleccionado] = useState("")
+    const [tipoSeleccionado, setTipoSeleccionado] = useState("");
     const handleChangeTipo = (event) => {
         const tipo = event.target.value;
-        setCategoriaSeleccionada(tipo);
+        setTipoSeleccionado(tipo);
     };
-    const [combateTecnica, setCombateTecnica] = useState("")
+    const [combateTecnica, setCombateTecnica] = useState("");
     const handleChangeCombateTecnica = (event) => {
         const combateTec = event.target.value;
-        setCategoriaSeleccionada(combateTec);
+        setCombateTecnica(combateTec);
     };
 
     return (
@@ -174,7 +178,7 @@ export function CrearCampeonato() {
                                     id="nombre"
                                     label="Nombre del campeonato"
                                     onChange={(e) => {
-                                        handleChange(e, "nombre")
+                                        handleChange(e, "nombre");
                                     }}
                                     autoFocus
                                 />
@@ -189,7 +193,7 @@ export function CrearCampeonato() {
                                         shrink: true,
                                     }}
                                     onChange={(e) => {
-                                        handleChange(e, "fecha")
+                                        handleChange(e, "fecha");
                                     }}
                                 />
                             </Grid>
@@ -201,7 +205,7 @@ export function CrearCampeonato() {
                                     id="lugar"
                                     label="Lugar"
                                     onChange={(e) => {
-                                        handleChange(e, "lugar")
+                                        handleChange(e, "lugar");
                                     }}
                                 />
                             </Grid>
@@ -213,7 +217,7 @@ export function CrearCampeonato() {
                                     id="direccion"
                                     label="Direccion"
                                     onChange={(e) => {
-                                        handleChange(e, "direccion")
+                                        handleChange(e, "direccion");
                                     }}
                                 />
                             </Grid>
@@ -226,9 +230,8 @@ export function CrearCampeonato() {
                                     id="organizador"
                                     value={datos ? datos.name : ""}
                                     onChange={(e) => {
-                                        handleChange(e, "organizador")
+                                        handleChange(e, "organizador");
                                     }}
-                                    
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -237,20 +240,25 @@ export function CrearCampeonato() {
                                     fullWidth
                                     label="Combate o técnica"
                                     id="combateTecnica"
+                                    disabled
                                 >
                                     <InputLabel>Combate o técnica</InputLabel>
                                     <Select
-                                            id="combateTecnica"
-                                            onChange={(e) => {
-                                                handleChange(e, "combateTecnica");
-                                                handleChangeCombateTecnica(e);
-                                            }}
-                                            required
-                                            label="Combate o técnica"
-                                        >
-                                            <MenuItem value={"Combate"}>Combate</MenuItem>
-                                            <MenuItem value={"Técnica"}>Técnica</MenuItem>
-                                            
+                                        value={datos ? datos.tipoClub : ""}
+                                        id="combateTecnica"
+                                        onChange={(e) => {
+                                            handleChange(e, "combateTecnica");
+                                            handleChangeCombateTecnica(e);
+                                        }}
+                                        required
+                                        label="Combate o técnica"
+                                    >
+                                        <MenuItem value={"Combate"}>
+                                            Combate
+                                        </MenuItem>
+                                        <MenuItem value={"Técnica"}>
+                                            Técnica
+                                        </MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -263,29 +271,31 @@ export function CrearCampeonato() {
                                 >
                                     <InputLabel>Tipo</InputLabel>
                                     <Select
-                                            id="tipo"
-                                            onChange={(e) => {
-                                                handleChange(e, "tipo");
-                                                handleChangeTipo(e);
-                                            }}
-                                            required
-                                            label="Tipo de campeonato"
-                                        >
-                                            <MenuItem value={"Autonomico"}>Autonomico</MenuItem>
-                                            <MenuItem value={"Liga"}>Liga</MenuItem>
-                                            <MenuItem value={"Open"}>Open</MenuItem>
+                                        id="tipo"
+                                        onChange={(e) => {
+                                            handleChange(e, "tipo");
+                                            handleChangeTipo(e);
+                                        }}
+                                        required
+                                        label="Tipo de campeonato"
+                                    >
+                                        <MenuItem value={"Autonomico"}>
+                                            Autonomico
+                                        </MenuItem>
+                                        <MenuItem value={"Liga"}>Liga</MenuItem>
+                                        <MenuItem value={"Open"}>Open</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                            <FormControl
-                                variant="outlined"
-                                fullWidth
-                                label="Categoria"
-                                id="Categoria"
-                            >
-                                <InputLabel>Categoria</InputLabel>
-                                <Select
+                                <FormControl
+                                    variant="outlined"
+                                    fullWidth
+                                    label="Categoria"
+                                    id="Categoria"
+                                >
+                                    <InputLabel>Categoria</InputLabel>
+                                    <Select
                                         id="Categoria"
                                         onChange={(e) => {
                                             handleChange(e, "categoria");
@@ -294,11 +304,17 @@ export function CrearCampeonato() {
                                         required
                                         label="Categoria"
                                     >
-                                        <MenuItem value={"Cadete"}>Cadete</MenuItem>
-                                        <MenuItem value={"Junior"}>Junior</MenuItem>
-                                        <MenuItem value={"Senior"}>Senior</MenuItem>
-                                </Select>
-                            </FormControl>
+                                        <MenuItem value={"Cadete"}>
+                                            Cadete
+                                        </MenuItem>
+                                        <MenuItem value={"Junior"}>
+                                            Junior
+                                        </MenuItem>
+                                        <MenuItem value={"Senior"}>
+                                            Senior
+                                        </MenuItem>
+                                    </Select>
+                                </FormControl>
                             </Grid>
                         </Grid>
                         <Button

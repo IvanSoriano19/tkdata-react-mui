@@ -117,7 +117,7 @@ const useStyles = makeStyles((theme) => ({
     },
     rightSide: {
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#f8f6f4",
         borderRadius: "15px",
@@ -170,10 +170,12 @@ const useStyles = makeStyles((theme) => ({
     },
     limpiarFiltrosBtn: {
         display: "flex-end",
-        // alignItems: "right",
     },
     foroContainer: {
         display: "flex",
+    },
+    containerTabla: {
+        marginBottom: "20px",
     },
     btnEnviar: {
         display: "flex-end",
@@ -181,9 +183,8 @@ const useStyles = makeStyles((theme) => ({
     card: {
         borderRadius: "12px 12px 0 12px",
         overflow: "hidden",
-        width: "300px",
-        alignSelf: "flex-end",
-        paddingBottom: "-5px",
+        width: "95%",
+        alignItems: "center",
     },
     cardContent: {
         padding: "3px ",
@@ -197,8 +198,12 @@ const useStyles = makeStyles((theme) => ({
     },
     messages: {
         justifyContent: "flex-end",
-        marginRight: "10px",
         marginBottom: "20px",
+        width: "90%",
+    },
+    cardItem: {
+        justifyContent: "center",
+        alignItems: "center",
     },
 }));
 
@@ -214,6 +219,8 @@ export function Campeonato() {
     const [openEdit, setOpenEdit] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openSnackbarCombateTecnica, setOpenSnackbarCombateTecnica] =
+        useState(false);
     const [agregarCompetidoresOpen, setAgregarCompetidoresOpen] =
         useState(false);
     const [personasSeleccionadas, setPersonasSeleccionadas] = useState([]);
@@ -234,15 +241,17 @@ export function Campeonato() {
     });
     const [messages, setMessages] = useState([]);
 
-    const handleClickSnackbar = () => {
-        setOpenSnackbar(true);
-    };
-
     const handleCloseSnackbar = (event, reason) => {
         if (reason === "clickaway") {
             return;
         }
         setOpenSnackbar(false);
+    };
+    const handleCloseSnackbarCombateTecnica = (event, reason) => {
+        if (reason === "clickaway") {
+            return;
+        }
+        setOpenSnackbarCombateTecnica(false);
     };
     const cadeteM = [
         "-33 Kg",
@@ -360,33 +369,62 @@ export function Campeonato() {
 
             const docSnap = await getDoc(campeonatoRef);
             const campeonatoData = docSnap.data();
-            const clubesActuales = campeonatoData.clubes || [];
+            if (datos.tipoClub === campeonatoData.combateTecnica) {
+                const clubesActuales = campeonatoData.clubes || [];
 
-            clubesActuales.push(nuevoClub);
+                clubesActuales.push(nuevoClub);
 
-            await updateDoc(campeonatoRef, { clubes: clubesActuales });
-            navigate("/campeonatos");
+                await updateDoc(campeonatoRef, { clubes: clubesActuales });
+                navigate("/campeonatos");
+            } else {
+                console.log(
+                    "tu club tiene que ser de ",
+                    campeonatoData.combateTecnica
+                );
+                setOpenSnackbarCombateTecnica(true);
+            }
         } catch (error) {}
     };
 
     const handleDeleteClub = async (deleteClub) => {
+        const batch = writeBatch(getFirestore());
         try {
             const campeonatoRef = doc(db, "Campeonatos", campeonato.id);
 
             const docSnap = await getDoc(campeonatoRef);
             const campeonatoData = docSnap.data();
             const clubesActuales = campeonatoData.clubes || [];
+            const competidoresActuales = campeonatoData.competidores || [];
 
-            const nuevosClubes = clubesActuales.filter((club) => club !== deleteClub);
+            const nuevosClubes = clubesActuales.filter(
+                (club) => club !== deleteClub
+            );
+            const competidoresNuevosSet = new Set(competidoresActuales);
+            for (const persona of personasFiltradas) {
+                const personasDoc = await getDoc(
+                    doc(db, "Personas", persona.id)
+                );
+                if (personasDoc.data().Club === datos.name) {
+                    competidoresNuevosSet.delete(persona.id);
+                    const competidoresNuevos = Array.from(
+                        competidoresNuevosSet
+                    );
+                    await updateDoc(campeonatoRef, {
+                        competidores: competidoresNuevos,
+                    });
+                }
+            }
+            await updateDoc(campeonatoRef, {
+                clubes: nuevosClubes,
+            });
 
-            await updateDoc(campeonatoRef, { clubes: nuevosClubes });
+            await batch.commit();
             navigate("/campeonatos");
         } catch (error) {}
     };
 
     const obtenerCampeonato = async () => {
         try {
-
             const docRef = doc(db, "Campeonatos", campeonato.id);
             const docSnap = await getDoc(docRef);
             const unsubscribe = onSnapshot(
@@ -396,7 +434,6 @@ export function Campeonato() {
                         console.log("snapshot empty");
                         return;
                     }
-                    console.log(docSnap)
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         setRefreshCampeonato(data);
@@ -409,7 +446,6 @@ export function Campeonato() {
                 }
             );
             return () => unsubscribe();
-            
         } catch (error) {
             console.error(error);
             setRefreshCampeonato(null);
@@ -481,16 +517,18 @@ export function Campeonato() {
                     const personasDoc = await getDoc(
                         doc(db, "Personas", personaId)
                     );
-
+                    console.log(competidoresNuevosSet);
                     if (datos.name === personasDoc.data().Club) {
                         competidoresNuevosSet.delete(personaId);
+                        console.log(personaId);
                         const competidoresNuevos = Array.from(
                             competidoresNuevosSet
                         );
-
+                        console.log(competidoresNuevos);
                         await updateDoc(campeonatoDoc.ref, {
                             competidores: competidoresNuevos,
                         });
+
                         await batch.commit();
                         window.location.reload();
                     } else {
@@ -543,13 +581,11 @@ export function Campeonato() {
                 const competidoresData = campeonatoData.competidores || [];
 
                 const competidores = [];
-
                 for (const competidorId of competidoresData) {
                     try {
                         const competidorDoc = await getDoc(
                             doc(db, "Personas", competidorId)
                         );
-
                         if (competidorDoc.exists()) {
                             competidores.push({
                                 id: competidorDoc.id,
@@ -755,7 +791,7 @@ export function Campeonato() {
                         }}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={3}>
                     <TextField
                         className={classes.campeonato}
                         InputProps={{
@@ -763,6 +799,20 @@ export function Campeonato() {
                         }}
                         label="Tipo de campeonato"
                         value={refreshCampeonato.tipo}
+                        variant="outlined"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                    <TextField
+                        className={classes.campeonato}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                        label="Tipo de campeonato"
+                        value={refreshCampeonato.combateTecnica}
                         variant="outlined"
                         InputLabelProps={{
                             shrink: true,
@@ -809,18 +859,34 @@ export function Campeonato() {
                         </Grid>
                     )
                 ) : (
-                    <Grid item xs={12} sm={3}>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            className={classes.submit}
-                            onClick={() => handleAddClub(datos.name)}
-                        >
-                            Inscribirme
-                        </Button>
-                    </Grid>
+                    <>
+                        <Grid item xs={12} sm={3}>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                className={classes.submit}
+                                onClick={() => handleAddClub(datos.name)}
+                            >
+                                Inscribirme
+                            </Button>
+                        </Grid>
+                        <div className={classes.snackbar}>
+                            <Snackbar
+                                open={openSnackbarCombateTecnica}
+                                autoHideDuration={3000}
+                                onClose={handleCloseSnackbarCombateTecnica}
+                            >
+                                <Alert
+                                    onClose={handleCloseSnackbarCombateTecnica}
+                                    severity="error"
+                                >
+                                    El club tiene que ser de {refreshCampeonato.combateTecnica}
+                                </Alert>
+                            </Snackbar>
+                        </div>
+                    </>
                 )}
             </>
         );
@@ -1039,7 +1105,12 @@ export function Campeonato() {
                                         </IconButton>
                                     </Grid>
                                 </Grid>
-                                <Grid>
+                                <Grid
+                                    container
+                                    xs={12}
+                                    sm={12}
+                                    className={classes.containerTabla}
+                                >
                                     <Grid item xs={12} sm={12}>
                                         <TableContainer>
                                             <Table
@@ -1150,6 +1221,7 @@ export function Campeonato() {
                                     xs={12}
                                     sm={12}
                                     spacing={2}
+                                    item
                                 >
                                     <Typography variant="h4">Foro</Typography>
                                 </Grid>
@@ -1195,7 +1267,13 @@ export function Campeonato() {
                                     className={classes.messages}
                                 >
                                     {messages.map((m) => (
-                                        <Grid item key={m.id}>
+                                        <Grid
+                                            item
+                                            xs={12}
+                                            sm={12}
+                                            key={m.id}
+                                            className={classes.cardItem}
+                                        >
                                             <Card className={classes.card}>
                                                 <CardContent
                                                     className={
