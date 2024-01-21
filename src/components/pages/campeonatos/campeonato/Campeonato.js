@@ -369,6 +369,21 @@ export function Campeonato() {
         } catch (error) {}
     };
 
+    const handleDeleteClub = async (deleteClub) => {
+        try {
+            const campeonatoRef = doc(db, "Campeonatos", campeonato.id);
+
+            const docSnap = await getDoc(campeonatoRef);
+            const campeonatoData = docSnap.data();
+            const clubesActuales = campeonatoData.clubes || [];
+
+            const nuevosClubes = clubesActuales.filter((club) => club !== deleteClub);
+
+            await updateDoc(campeonatoRef, { clubes: nuevosClubes });
+            navigate("/campeonatos");
+        } catch (error) {}
+    };
+
     const obtenerCampeonato = async () => {
         try {
             const docRef = doc(db, "Campeonatos", campeonato.id);
@@ -663,7 +678,6 @@ export function Campeonato() {
         obtenerMessages();
     }, [datos, refreshCampeonato]);
 
-
     const mostrarDatosCampeonato = () => {
         if (!datos.name) {
         }
@@ -761,7 +775,23 @@ export function Campeonato() {
                     </Typography>
                 </Grid>
                 {campeonato.clubes && datos.id in campeonato.clubes ? (
-                    ""
+                    datos.name === campeonato.organizador ? (
+                        ""
+                    ) : (
+                        <Grid item xs={12} sm={3}>
+                            {/* TODO crear la funcionalidad */}
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                color="secondary"
+                                className={classes.submit}
+                                onClick={() => handleDeleteClub(datos.name)}
+                            >
+                                Desinscribirme
+                            </Button>
+                        </Grid>
+                    )
                 ) : (
                     <Grid item xs={12} sm={3}>
                         <Button
