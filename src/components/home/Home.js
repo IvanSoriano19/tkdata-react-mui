@@ -42,7 +42,6 @@ const useStyles = makeStyles((theme) => ({
         marginRight: "0px",
     },
     rightSide: {
-        // Estilos para la mitad derecha
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -77,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh", // Ajusta esto según tus necesidades
+        height: "100vh",
     },
 }));
 

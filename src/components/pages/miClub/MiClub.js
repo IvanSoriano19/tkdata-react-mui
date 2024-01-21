@@ -108,7 +108,7 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh", // Ajusta esto según tus necesidades
+        height: "100vh", 
     },
 }));
 

@@ -16,8 +16,6 @@ import { useNavigate } from "react-router-dom";
 import { Logo } from "./LogoAuth";
 import MuiAlert from "@material-ui/lab/Alert";
 
-// import ImageLogin from "../images/login.jpg";
-
 function Copyright() {
     return (
         <Typography variant="body2" color="textSecondary" align="center">

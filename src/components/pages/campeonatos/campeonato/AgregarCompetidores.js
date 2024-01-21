@@ -151,7 +151,6 @@ export function AgregarCompetidores(props) {
     const handleGuardarCompetidores = async () => {
         const batch = writeBatch(getFirestore());
         try {
-            // Obtener el documento actual del campeonato
             const campeonatoDoc = await getDoc(
                 doc(db, "Campeonatos", idCampeonato)
             );
