@@ -8,11 +8,14 @@ import {
     CssBaseline,
     Grid,
     Box,
+    Snackbar,
 } from "@material-ui/core";
 import { useState } from "react";
 import { useAuth } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "./LogoAuth";
+import MuiAlert from "@material-ui/lab/Alert";
+
 // import ImageLogin from "../images/login.jpg";
 
 function Copyright() {
@@ -54,7 +57,17 @@ const useStyles = makeStyles((theme) => ({
             backgroundColor: "#2765B0",
         },
     },
+    snackbar: {
+        width: "100%",
+        "& > * + *": {
+            marginTop: theme.spacing(2),
+        },
+    },
 }));
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 export function Login() {
     const classes = useStyles();
@@ -63,9 +76,17 @@ export function Login() {
         email: "",
         password: "",
     });
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const { login } = useAuth();
     const [errors, setErrors] = useState();
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === "clickaway") {
+            return;
+        }
+        setOpenSnackbar(false);
+    };
 
     const handleChange = ({ target: { id, value } }) => {
         setUser((prevUser) => {
@@ -73,7 +94,7 @@ export function Login() {
             return newUser;
         });
     };
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors("");
@@ -82,6 +103,7 @@ export function Login() {
             navigate("/");
         } catch (error) {
             setErrors(error.message);
+            setOpenSnackbar(true);
         }
     };
 
@@ -94,7 +116,7 @@ export function Login() {
             <CssBaseline />
             <div className={classes.paper}>
                 <div className={classes.avatar}>
-                    <Logo/>
+                    <Logo />
                 </div>
                 <Typography component="h1" variant="h5">
                     Iniciar Sesión
@@ -142,7 +164,17 @@ export function Login() {
             <Box mt={8}>
                 <Copyright />
             </Box>
-            {errors && <p className={classes.error}>{errors}</p>}
+            <div className={classes.snackbar}>
+                <Snackbar
+                    open={openSnackbar}
+                    autoHideDuration={6000}
+                    onClose={handleCloseSnackbar}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity="error">
+                        Email o contraseña incorrectas
+                    </Alert>
+                </Snackbar>
+            </div>
         </Container>
     );
 }
