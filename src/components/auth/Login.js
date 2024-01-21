@@ -70,7 +70,6 @@ export function Login() {
     const handleChange = ({ target: { id, value } }) => {
         setUser((prevUser) => {
             const newUser = { ...prevUser, [id]: value };
-            console.log(newUser);
             return newUser;
         });
     };
