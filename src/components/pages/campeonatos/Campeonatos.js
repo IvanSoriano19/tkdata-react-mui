@@ -201,8 +201,9 @@ export function Campeonatos() {
                                     <Grid item xs={12}><Typography>Lugar: {campeonato.lugar}</Typography></Grid>
                                     <Grid item xs={12}><Typography>Organizador: {campeonato.organizador === user.uid ? datos.name : campeonato.organizador}</Typography></Grid>
                                     <Grid item xs={12}><Typography>Categoria: {campeonato.categoria}</Typography></Grid>
-                                    <Grid item xs={6}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
-                                    <Grid item xs={6} className={classes.btnCampeonato}>
+                                    <Grid item xs={12}><Typography>Tipo de campeonato: {campeonato.combateTecnica}</Typography></Grid>
+                                    <Grid item xs={8}><Typography>Clubes inscritos: {campeonato.clubes ? Object.values(campeonato.clubes).length  : 0}</Typography></Grid>
+                                    <Grid item xs={4} className={classes.btnCampeonato}>
                                         <IconButton
                                             color="primary"
                                             onClick={() => navigate("/campeonato", {state:{campeonato}})}

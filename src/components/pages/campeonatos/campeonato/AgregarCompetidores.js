@@ -54,7 +54,14 @@ const useStyles = makeStyles((theme) => ({
         "&:hover": {
             backgroundColor: "#2765B0",
         },
-    }
+    },
+    dialog: {
+        width: "100%",
+        maxWidth: "100%",
+    },
+    fullWidthTable: {
+        width: "100%",
+    },
     
 }));
 
@@ -114,9 +121,19 @@ export function AgregarCompetidores(props) {
             const datosQuery = query(
                 collection(db, "Personas"),
                 where("Club", "==", datos.name),
-                where("Categoria", "==", datosCampeonato.categoria)
+                where("Categoria", "==", datosCampeonato.categoria),
+                // where("Tipo", "==", "Entrenador"),
+                // where("Categoria", "==", ""),
             );
+            const queryEntrenadores = query(
+                collection(db, "Personas"),
+                where("Club", "==", datos.name),
+                where("Tipo", "==", "Entrenador"),
+            );
+
             const datosSnapshot = await getDocs(datosQuery);
+            const datosSnapshotEntrenadores = await getDocs(queryEntrenadores);
+            
             const datosPers = {};
             datosSnapshot.docs.forEach((doc) => {
                 datosPers[doc.id] = {
@@ -124,7 +141,21 @@ export function AgregarCompetidores(props) {
                     ...doc.data(),
                 };
             });
-            setDatosPersonas(datosPers);
+            const datosEntrenadores = {};
+            datosSnapshotEntrenadores.docs.forEach((doc) => {
+                datosEntrenadores[doc.id] = {
+                    id: doc.id,
+                    ...doc.data(),
+                };
+            });
+
+            console.log(datosEntrenadores)
+            const datosCombinados = {
+                ...datosPers,
+                ...datosEntrenadores,
+            };
+            console.log(datosCombinados)
+            setDatosPersonas(datosCombinados);
         };
         obtenerDatos();
     }, [datos]);
@@ -181,14 +212,13 @@ export function AgregarCompetidores(props) {
     };
 
     return (
-        <ThemeProvider theme={theme} className={classes.root}>
-            <Dialog open={open} onClose={handleClose}>
+        <ThemeProvider theme={theme}>
+            <Dialog open={open} onClose={handleClose} maxWidth="lg" className={classes.dialog}>
                 <DialogTitle>Competidores</DialogTitle>
-                <DialogContent>
+                <DialogContent >
                     <Grid item xs={12} sm={12}>
-                        <TableContainer>
+                        <TableContainer className={classes.fullWidthTable}>
                             <Table
-                                className={classes.table}
                                 aria-label="simple table"
                             >
                                 <TableHead>
@@ -206,17 +236,17 @@ export function AgregarCompetidores(props) {
                                         </TableCell>
                                         <TableCell align="left">
                                             <Typography variant="h6">
-                                                Edad
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            <Typography variant="h6">
                                                 Sexo
                                             </Typography>
                                         </TableCell>
                                         <TableCell align="left">
                                             <Typography variant="h6">
                                                 Peso
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell align="left">
+                                            <Typography variant="h6">
+                                                Tipo
                                             </Typography>
                                         </TableCell>
                                     </TableRow>
@@ -255,17 +285,17 @@ export function AgregarCompetidores(props) {
                                                     </TableCell>
                                                     <TableCell align="left">
                                                         <Typography>
-                                                            {row.Edad}
-                                                        </Typography>
-                                                    </TableCell>
-                                                    <TableCell align="left">
-                                                        <Typography>
                                                             {row.Sexo}
                                                         </Typography>
                                                     </TableCell>
                                                     <TableCell align="left">
                                                         <Typography>
                                                             {row.Peso}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell align="left">
+                                                        <Typography>
+                                                            {row.Tipo}
                                                         </Typography>
                                                     </TableCell>
                                                 </TableRow>

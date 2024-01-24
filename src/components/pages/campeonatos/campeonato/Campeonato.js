@@ -1132,7 +1132,7 @@ export function Campeonato() {
                                                         </TableCell>
                                                         <TableCell align="left">
                                                             <Typography variant="h6">
-                                                                Edad
+                                                                Tipo
                                                             </Typography>
                                                         </TableCell>
                                                         <TableCell align="left">
@@ -1183,7 +1183,7 @@ export function Campeonato() {
                                                                 <TableCell align="left">
                                                                     <Typography>
                                                                         {
-                                                                            row.Edad
+                                                                            row.Tipo
                                                                         }
                                                                     </Typography>
                                                                 </TableCell>
