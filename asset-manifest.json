@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/tkdata-react-mui/static/css/main.f855e6bc.css",
+    "main.js": "/tkdata-react-mui/static/js/main.c7e7873f.js",
+    "static/js/787.10432f25.chunk.js": "/tkdata-react-mui/static/js/787.10432f25.chunk.js",
+    "index.html": "/tkdata-react-mui/index.html",
+    "main.f855e6bc.css.map": "/tkdata-react-mui/static/css/main.f855e6bc.css.map",
+    "main.c7e7873f.js.map": "/tkdata-react-mui/static/js/main.c7e7873f.js.map",
+    "787.10432f25.chunk.js.map": "/tkdata-react-mui/static/js/787.10432f25.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.c7e7873f.js"
+  ]
+}
